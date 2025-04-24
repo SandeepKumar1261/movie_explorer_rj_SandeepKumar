@@ -8,36 +8,30 @@ import {
   Box,
   Container,
 } from "@mui/material";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import GoogleIcon from "@mui/icons-material/Google";
 
-const clientId: string =
-  "245893321816-4e9r7ruak5cen3frniko5mr47uuaibnh.apps.googleusercontent.com";
-
-const Loginform: React.FC = () => {
+const SignupForm: React.FC = () => {
+  const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    if (email === "" || password === "") {
-      setError("Both fields are required.");
+    if (!name || !email || !password || !confirmPassword) {
+      setError("All fields are required.");
       return;
     }
 
-    if (email !== "user@example.com" || password !== "password123") {
-      setError("Incorrect email or password.");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
-    console.log("Info:", { email, password });
-  };
-
-  const handleLoginSuccess = (response: any) => {
-    console.log("Google Login Success:", response);
+    console.log("Signup Info:", { name, email, password });
+    // proceed to submit or navigate
   };
 
   return (
@@ -69,9 +63,8 @@ const Loginform: React.FC = () => {
               variant="h5"
               align="center"
               sx={{ mb: 3, fontWeight: "bold", color: "white" }}
-              aria-label="Login form heading"
             >
-              Login
+              Sign Up
             </Typography>
 
             {error && (
@@ -80,10 +73,41 @@ const Loginform: React.FC = () => {
               </Alert>
             )}
 
-            <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+            <Box component="form" onSubmit={handleSignup} sx={{ mt: 1 }}>
+              {/* Name */}
               <Box sx={{ mb: 2 }}>
                 <TextField
-                  margin="normal"
+                  fullWidth
+                  placeholder="Enter Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  error={!!error && name === ""}
+                  variant="outlined"
+                  sx={{
+                    backgroundColor: "#374151",
+                    borderRadius: 1,
+                    input: { color: "white" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "transparent" },
+                      "&:hover fieldset": { borderColor: "#9ca3af" },
+                      "&.Mui-focused fieldset": { borderColor: "#9ca3af" },
+                    },
+                  }}
+                  InputProps={{
+                    style: { color: "white" },
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  sx={{ height: "18px", color: "#f87171", mt: 0.5 }}
+                >
+                  {name === "" && error ? "Name is required" : " "}
+                </Typography>
+              </Box>
+
+              {/* Email */}
+              <Box sx={{ mb: 2 }}>
+                <TextField
                   fullWidth
                   placeholder="Enter Your Email"
                   type="email"
@@ -107,21 +131,17 @@ const Loginform: React.FC = () => {
                 />
                 <Typography
                   variant="caption"
-                  sx={{
-                    height: "18px",
-                    color: "#f87171",
-                    mt: 0.5,
-                  }}
+                  sx={{ height: "18px", color: "#f87171", mt: 0.5 }}
                 >
                   {email === "" && error ? "Email is required" : " "}
                 </Typography>
               </Box>
 
+              {/* Password */}
               <Box sx={{ mb: 2 }}>
                 <TextField
-                  margin="normal"
                   fullWidth
-                  placeholder="Enter Your Password"
+                  placeholder="Enter Password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -143,13 +163,43 @@ const Loginform: React.FC = () => {
                 />
                 <Typography
                   variant="caption"
-                  sx={{
-                    height: "18px",
-                    color: "#f87171",
-                    mt: 0.5,
-                  }}
+                  sx={{ height: "18px", color: "#f87171", mt: 0.5 }}
                 >
                   {password === "" && error ? "Password is required" : " "}
+                </Typography>
+              </Box>
+
+              {/* Confirm Password */}
+              <Box sx={{ mb: 2 }}>
+                <TextField
+                  fullWidth
+                  placeholder="Confirm Password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  error={!!error && confirmPassword === ""}
+                  variant="outlined"
+                  sx={{
+                    backgroundColor: "#374151",
+                    borderRadius: 1,
+                    input: { color: "white" },
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "transparent" },
+                      "&:hover fieldset": { borderColor: "#9ca3af" },
+                      "&.Mui-focused fieldset": { borderColor: "#9ca3af" },
+                    },
+                  }}
+                  InputProps={{
+                    style: { color: "white" },
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  sx={{ height: "18px", color: "#f87171", mt: 0.5 }}
+                >
+                  {confirmPassword === "" && error
+                    ? "Please confirm password"
+                    : " "}
                 </Typography>
               </Box>
 
@@ -170,47 +220,8 @@ const Loginform: React.FC = () => {
                   color: "white",
                 }}
               >
-                Login
+                Sign Up
               </Button>
-
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
-                <Typography variant="body2" sx={{ color: "#9ca3af" }} align="center">
-                  OR
-                </Typography>
-              </Box>
-
-              <GoogleOAuthProvider clientId={clientId}>
-                <Box sx={{ display: "flex", justifyContent: "center" }}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<GoogleIcon />}
-                    onClick={() =>
-                      document
-                        .querySelector<HTMLElement>('[aria-labelledby="button-label"]')
-                        ?.click()
-                    }
-                    sx={{
-                      py: 1,
-                      backgroundColor: "white",
-                      border: "1px solid #4b5563",
-                      "&:hover": {
-                        backgroundColor: "#f3f4f6",
-                        borderColor: "#6b7280",
-                      },
-                      borderRadius: 1,
-                      textTransform: "none",
-                      fontSize: "0.95rem",
-                      color: "#1f2937",
-                    }}
-                  >
-                    Sign in with Google
-                  </Button>
-                  <Box sx={{ display: "none" }}>
-                    <GoogleLogin onSuccess={handleLoginSuccess} />
-                  </Box>
-                </Box>
-              </GoogleOAuthProvider>
             </Box>
           </Paper>
         </Box>
@@ -219,4 +230,4 @@ const Loginform: React.FC = () => {
   );
 };
 
-export default Loginform;
+export default SignupForm;
