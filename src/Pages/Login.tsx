@@ -1,15 +1,18 @@
-import React from 'react'
-import Navbar from '../Components/Common/Navbar'
-import Loginform from '../Components/Layouts/Loginform'
-import Footer from '../Components/Common/Footer'
+import React, { Component } from 'react';
+import Navbar from '../Components/Common/Navbar';
+import Loginform from '../Components/Layouts/Auth/Loginform';
+import Footer from '../Components/Common/Footer';
 
-const Login=() =>{
-  return (
-    <>
-      <Navbar/>
-      <Loginform/>
-      <Footer/>
-    </>
-  )
+class Login extends Component {
+  render() {
+    return (
+      <>
+        <Navbar />
+        <Loginform />
+        <Footer />
+      </>
+    );
+  }
 }
+
 export default Login;

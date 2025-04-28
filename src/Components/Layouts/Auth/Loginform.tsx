@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 import {
   TextField,
   Button,
@@ -8,36 +10,43 @@ import {
   Box,
   Container,
 } from "@mui/material";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import GoogleIcon from "@mui/icons-material/Google";
-
-const clientId: string =
-  "245893321816-4e9r7ruak5cen3frniko5mr47uuaibnh.apps.googleusercontent.com";
-
+import { loginUser } from "../../../Services/Api.js";
 const Loginform: React.FC = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     if (email === "" || password === "") {
       setError("Both fields are required.");
+      setLoading(false);
       return;
     }
 
-    if (email !== "user@example.com" || password !== "password123") {
-      setError("Incorrect email or password.");
-      return;
+    try {
+      const response = await loginUser(email, password);
+      toast.success("Login successful!");
+      console.log(response);
+      localStorage.setItem("token", response.token);
+      navigate("/");
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error(err.response.data.message);
+        setError(err.response.data.message);
+      } else {
+        toast.error("Login failed. Please try again.");
+        setError("Login failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    console.log("Info:", { email, password });
-  };
-
-  const handleLoginSuccess = (response: any) => {
-    console.log("Google Login Success:", response);
   };
 
   return (
@@ -47,19 +56,38 @@ const Loginform: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#1f2937",
+        backgroundColor: "#0C0F14",
         py: 4,
       }}
     >
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="dark"
+        style={{ top: "20px" }}
+      />
+
       <Container maxWidth="lg">
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            backgroundColor: "#0C0F14",
+          }}
+        >
           <Paper
             elevation={3}
             sx={{
               padding: { xs: 2, sm: 3 },
-              backgroundColor: "#1f2937",
+              backgroundColor: "#1F222A",
               color: "white",
               borderRadius: 2,
+              border: "2px solid #374151",
               width: { xs: "90%", sm: 400, md: 500 },
               maxWidth: 500,
             }}
@@ -74,37 +102,38 @@ const Loginform: React.FC = () => {
               Login
             </Typography>
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 2, color: "#f87171", bgcolor: "#374151" }}>
-                {error}
-              </Alert>
-            )}
-
-            <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+            <Box
+              component="form"
+              onSubmit={handleLogin}
+              sx={{ mt: 1, backgroundColor: "#1F222A " }}
+            >
               <Box sx={{ mb: 2 }}>
                 <TextField
                   margin="normal"
                   fullWidth
                   placeholder="Enter Your Email"
                   type="email"
-                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   error={!!error && email === ""}
                   variant="outlined"
                   sx={{
                     backgroundColor: "#374151",
-                    borderRadius: 1,
-                    input: { color: "white" },
+                    borderRadius: 2,
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "transparent" },
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#9ca3af" },
+                      "& input": {
+                        backgroundColor: "#374151",
+                        color: "white",
+                      },
+                      "& fieldset": { borderColor: "#FF0000" },
+                      "&:hover fieldset": { borderColor: "#FF0000" },
+                      "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                     },
                   }}
                   InputProps={{
                     style: { color: "white" },
                   }}
                 />
+
                 <Typography
                   variant="caption"
                   sx={{
@@ -129,16 +158,16 @@ const Loginform: React.FC = () => {
                   variant="outlined"
                   sx={{
                     backgroundColor: "#374151",
-                    borderRadius: 1,
+                    borderRadius: 2,
                     input: { color: "white" },
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "transparent" },
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#9ca3af" },
+                      "& fieldset": { borderColor: "#FF0000" },
+                      "&:hover fieldset": { borderColor: "#FF0000" },
+                      "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                     },
                   }}
                   InputProps={{
-                    style: { color: "white" },
+                    style: { color: "#5B5FE9" },
                   }}
                 />
                 <Typography
@@ -157,60 +186,41 @@ const Loginform: React.FC = () => {
                 type="submit"
                 fullWidth
                 variant="contained"
+                disabled={loading}
                 sx={{
                   mt: 2,
                   mb: 3,
                   py: 1,
-                  backgroundColor: "#4b5563",
-                  "&:hover": { backgroundColor: "#6b7280" },
-                  borderRadius: 1,
+                  backgroundColor: "#FF0000",
+                  "&:hover": { backgroundColor: "#FF0000" },
+                  borderRadius: 2,
                   textTransform: "none",
                   fontSize: "1rem",
                   fontWeight: "medium",
                   color: "white",
                 }}
               >
-                Login
+                {loading ? "Logging in..." : "Login"}
               </Button>
+            </Box>
 
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
-                <Typography variant="body2" sx={{ color: "#9ca3af" }} align="center">
-                  OR
-                </Typography>
-              </Box>
-
-              <GoogleOAuthProvider clientId={clientId}>
-                <Box sx={{ display: "flex", justifyContent: "center" }}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<GoogleIcon />}
-                    onClick={() =>
-                      document
-                        .querySelector<HTMLElement>('[aria-labelledby="button-label"]')
-                        ?.click()
-                    }
-                    sx={{
-                      py: 1,
-                      backgroundColor: "white",
-                      border: "1px solid #4b5563",
-                      "&:hover": {
-                        backgroundColor: "#f3f4f6",
-                        borderColor: "#6b7280",
-                      },
-                      borderRadius: 1,
-                      textTransform: "none",
-                      fontSize: "0.95rem",
-                      color: "#1f2937",
-                    }}
-                  >
-                    Sign in with Google
-                  </Button>
-                  <Box sx={{ display: "none" }}>
-                    <GoogleLogin onSuccess={handleLoginSuccess} />
-                  </Box>
-                </Box>
-              </GoogleOAuthProvider>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ color: "white", cursor: "pointer" }}
+                align="center"
+                onClick={() => navigate("/signup")}
+              >
+                Create a account{" "}
+                <span style={{ color: "white" ,font:"bold",textDecoration:"underline"}}> SignUp</span>
+              </Typography>
             </Box>
           </Paper>
         </Box>

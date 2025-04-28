@@ -1,55 +1,294 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Box,
+  InputBase,
+  Paper,
+  Menu,
+  MenuItem,
+  Button,
+} from "@mui/material";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
+  const profileCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileCardRef.current &&
+        !profileCardRef.current.contains(event.target as Node)
+      ) {
+        setShowProfile(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
+  const toggleProfileCard = (event: React.MouseEvent<HTMLElement>) => {
+    if (isLoggedIn) {
+      setAnchorEl(event.currentTarget);
+      setShowProfile((prev) => !prev);
+    } else {
+      toast.success("Please log In");
+      navigate("/login");
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    setShowProfile(false);
+    setAnchorEl(null);
+    navigate("/");
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setShowProfile(false);
+  };
+
   return (
-    <nav className="bg-gray-900 text-white px-6 py-4 shadow-md">
-      <div className="flex justify-between items-center">
-        <div className="text-2xl font-bold text-red-500">
-          <Link to="/">🎬 Movie Explorer</Link>
-        </div>
+    <AppBar position="static" sx={{ backgroundColor: "#0C0F14", boxShadow: 3 }}>
+      <Toolbar
+        sx={{
+          maxWidth: "1280px",
+          width: "100%",
+          mx: "auto",
+          display: "flex",
+          justifyContent: "space-between",
+          gap: { xs: 1, sm: 2, md: 3, lg: 4 },
+        }}
+      >
+        <Typography
+          component={Link}
+          to="/"
+          sx={{
+            textDecoration: "none",
+            color: "red",
+            fontWeight: "bold",
+            left: "0px",
+            fontSize: { xs: "1rem", sm: "1.8rem", md: "2.8rem" },
+            fontFamily: "sans-serif",
+            letterSpacing: "1px",
+          }}
+        >
+          MovieFlix
+        </Typography>
 
-        <div className="hidden md:flex gap-6 text-sm">
-          <Link to="/" className="hover:text-red-400 transition">Home</Link>
-          <Link to="/" className="hover:text-red-400 transition">Movies</Link>
-          <Link to="/" className="hover:text-red-400 transition">Genres</Link>
-          <Link to="/" className="hover:text-red-400 transition">My List</Link>
-        </div>
+        <Box
+          sx={{
+            display: { xs: "none", sm: "flex" },
+            gap: { xs: 1.5, lg: 3 },
+            fontFamily: "serif",
+            fontSize: { xs: "1rem", lg: "1.25rem" },
+          }}
+        >
+          <Typography
+            component={Link}
+            to="/"
+            sx={{
+              textDecoration: "none",
+              color: "inherit",
+              fontWeight: "bold",
+              fontFamily: "sans-serif",
+              "&:hover": { color: "red" },
+            }}
+          >
+            Home
+          </Typography>
+          <Typography
+            component={Link}
+            to="/movies"
+            sx={{
+              textDecoration: "none",
+              color: "inherit",
+              fontWeight: "bold",
+              fontFamily: "sans-serif",
 
-        <div className="flex items-center gap-4">
-          <div className="relative hidden sm:block">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-gray-800 text-sm px-3 py-1 rounded-full pl-8 placeholder-gray-400 focus:outline-none"
+              "&:hover": { color: "red" },
+            }}
+          >
+            Movies
+          </Typography>
+          <Typography
+            component={Link}
+            to="/genres"
+            sx={{
+              textDecoration: "none",
+              color: "inherit",
+              fontWeight: "bold",
+              fontFamily: "sans-serif",
+
+              "&:hover": { color: "red" },
+            }}
+          >
+            Genres
+          </Typography>
+          <Typography
+            component={Link}
+            to="/myWishlist"
+            sx={{
+              textDecoration: "none",
+              color: "inherit",
+              fontFamily: "sans-serif",
+
+              fontWeight: "bold",
+              "&:hover": { color: "red" },
+            }}
+          >
+            My List
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 1, sm: 2, md: 3, lg: 4 },
+            position: "relative",
+          }}
+        >
+          <Paper
+            component="form"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              width: { xs: 100, sm: 140, md: 200 },
+              borderRadius: 5,
+              bgcolor: "grey.900",
+              px: 1,
+            }}
+          >
+            <FaSearch
+              style={{ color: "gray", marginLeft: 4, fontSize: "0.8rem" }}
             />
-            <FaSearch className="absolute top-1.5 left-2.5 text-gray-400 text-sm" />
-          </div>
+            <InputBase
+              placeholder="Search..."
+              sx={{
+                ml: 1,
+                flex: 1,
+                fontSize: "0.9rem",
+                color: "white",
+              }}
+              inputProps={{ "aria-label": "search" }}
+            />
+          </Paper>
 
-          <FaUserCircle className="text-2xl hover:text-red-400 cursor-pointer pl-2" />
+          <IconButton onClick={toggleProfileCard} sx={{ color: "white" }}>
+            <FaUserCircle size={30} />
+          </IconButton>
 
-          <div className="md:hidden items-center flex">
-            <button onClick={toggleMenu}>
-              {isOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
-            </button>
-          </div>
-        </div>
-      </div>
+          <Box sx={{ display: { xs: "block", sm: "none" } }}>
+            <IconButton onClick={toggleMenu} sx={{ color: "white" }}>
+              {isOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+            </IconButton>
+          </Box>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={showProfile && isLoggedIn}
+            onClose={handleMenuClose}
+            ref={profileCardRef}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem disabled sx={{ fontWeight: "bold" }}>
+              👤 Logged In
+            </MenuItem>
+            <MenuItem onClick={handleLogout}>
+              <Button variant="contained" color="error" fullWidth>
+                Logout
+              </Button>
+            </MenuItem>
+          </Menu>
+        </Box>
+      </Toolbar>
 
       {isOpen && (
-        <div className="flex flex-col gap-4 mt-4 md:hidden">
-          <Link to="/" className="hover:text-red-400" onClick={toggleMenu}>Home</Link>
-          <Link to="/" className="hover:text-red-400" onClick={toggleMenu}>Movies</Link>
-          <Link to="/" className="hover:text-red-400" onClick={toggleMenu}>Genres</Link>
-          <Link to="/" className="hover:text-red-400" onClick={toggleMenu}>My List</Link>
-        </div>
+        <Box
+          sx={{
+            display: { xs: "flex", sm: "none" },
+            flexDirection: "column",
+            gap: 2,
+            px: 2,
+            pb: 2,
+            fontFamily: "serif",
+            fontSize: "1rem",
+          }}
+        >
+          <Typography
+            component={Link}
+            to="/"
+            sx={{
+              textDecoration: "none",
+              color: "inherit",
+              "&:hover": { color: "red", textDecoration: "underline" },
+            }}
+            onClick={toggleMenu}
+          >
+            Home
+          </Typography>
+          <Typography
+            component={Link}
+            to="/movies"
+            sx={{
+              textDecoration: "none",
+              color: "inherit",
+              "&:hover": { color: "red", textDecoration: "underline" },
+            }}
+            onClick={toggleMenu}
+          >
+            Movies
+          </Typography>
+          <Typography
+            component={Link}
+            to="/genres"
+            sx={{
+              textDecoration: "underline",
+              color: "inherit",
+              "&:hover": { color: "red", textDecoration: "underline" },
+            }}
+            onClick={toggleMenu}
+          >
+            Genres
+          </Typography>
+          <Typography
+            component={Link}
+            to="/myWishlist"
+            sx={{
+              textDecoration: "underline",
+              color: "inherit",
+              "&:hover": { color: "red", textDecoration: "underline" },
+            }}
+            onClick={toggleMenu}
+          >
+            My List
+          </Typography>
+        </Box>
       )}
-    </nav>
+    </AppBar>
   );
-}
+};
+
 export default Navbar;

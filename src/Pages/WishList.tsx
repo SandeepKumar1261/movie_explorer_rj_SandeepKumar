@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
-import SignupForm from '../Components/Layouts/Auth/SignupForm';
 import Navbar from '../Components/Common/Navbar';
 import Footer from '../Components/Common/Footer';
 
-class SignUp extends Component {
+class WishList extends Component {
   render() {
     return (
       <>
         <Navbar />
-        <SignupForm />
+        <h1>In the wishlist</h1>
         <Footer />
       </>
     );
   }
 }
 
-export default SignUp;
+export default WishList;

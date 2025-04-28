@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 import {
   TextField,
   Button,
@@ -8,32 +10,46 @@ import {
   Box,
   Container,
 } from "@mui/material";
+import { signupUser } from "../../../Services/Api.js";
 
 const SignupForm: React.FC = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password) {
+      toast.error("All fields are required.");
       setError("All fields are required.");
+      setLoading(false);
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+    try {
+      const user = { name, email, password };
+      const data = await signupUser(user);
+      toast.success("Signup successful!");
+      localStorage.setItem("token", data.token);
+      navigate("/");
+    } catch (err: any) {
+      toast.error("Signup failed. Please try again.");
+      console.error("Signup failed", err);
+      setError(
+        err.response?.data?.message || "Signup failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
 
     console.log("Signup Info:", { name, email, password });
-    // proceed to submit or navigate
   };
-
   return (
     <Box
       sx={{
@@ -41,17 +57,29 @@ const SignupForm: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#1f2937",
+        backgroundColor: "#0C0F14",
         py: 4,
       }}
     >
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="dark"
+        style={{ top: "20px" }}
+      />
+
       <Container maxWidth="lg">
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Paper
             elevation={3}
             sx={{
               padding: { xs: 2, sm: 3 },
-              backgroundColor: "#1f2937",
+              backgroundColor: "#1F222A",
               color: "white",
               borderRadius: 2,
               width: { xs: "90%", sm: 400, md: 500 },
@@ -66,15 +94,7 @@ const SignupForm: React.FC = () => {
             >
               Sign Up
             </Typography>
-
-            {error && (
-              <Alert severity="error" sx={{ mb: 2, color: "#f87171", bgcolor: "#374151" }}>
-                {error}
-              </Alert>
-            )}
-
             <Box component="form" onSubmit={handleSignup} sx={{ mt: 1 }}>
-              {/* Name */}
               <Box sx={{ mb: 2 }}>
                 <TextField
                   fullWidth
@@ -88,9 +108,9 @@ const SignupForm: React.FC = () => {
                     borderRadius: 1,
                     input: { color: "white" },
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "transparent" },
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#9ca3af" },
+                      "& fieldset": { borderColor: "#FF0000" },
+                      "&:hover fieldset": { borderColor: "#FF0000" },
+                      "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                     },
                   }}
                   InputProps={{
@@ -105,7 +125,6 @@ const SignupForm: React.FC = () => {
                 </Typography>
               </Box>
 
-              {/* Email */}
               <Box sx={{ mb: 2 }}>
                 <TextField
                   fullWidth
@@ -120,9 +139,9 @@ const SignupForm: React.FC = () => {
                     borderRadius: 1,
                     input: { color: "white" },
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "transparent" },
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#9ca3af" },
+                      "& fieldset": { borderColor: "#FF0000" },
+                      "&:hover fieldset": { borderColor: "#FF0000" },
+                      "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                     },
                   }}
                   InputProps={{
@@ -137,7 +156,6 @@ const SignupForm: React.FC = () => {
                 </Typography>
               </Box>
 
-              {/* Password */}
               <Box sx={{ mb: 2 }}>
                 <TextField
                   fullWidth
@@ -152,9 +170,9 @@ const SignupForm: React.FC = () => {
                     borderRadius: 1,
                     input: { color: "white" },
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "transparent" },
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#9ca3af" },
+                      "& fieldset": { borderColor: "#FF0000" },
+                      "&:hover fieldset": { borderColor: "#FF0000" },
+                      "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                     },
                   }}
                   InputProps={{
@@ -169,50 +187,17 @@ const SignupForm: React.FC = () => {
                 </Typography>
               </Box>
 
-              {/* Confirm Password */}
-              <Box sx={{ mb: 2 }}>
-                <TextField
-                  fullWidth
-                  placeholder="Confirm Password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  error={!!error && confirmPassword === ""}
-                  variant="outlined"
-                  sx={{
-                    backgroundColor: "#374151",
-                    borderRadius: 1,
-                    input: { color: "white" },
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "transparent" },
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#9ca3af" },
-                    },
-                  }}
-                  InputProps={{
-                    style: { color: "white" },
-                  }}
-                />
-                <Typography
-                  variant="caption"
-                  sx={{ height: "18px", color: "#f87171", mt: 0.5 }}
-                >
-                  {confirmPassword === "" && error
-                    ? "Please confirm password"
-                    : " "}
-                </Typography>
-              </Box>
-
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
+                disabled={loading}
                 sx={{
                   mt: 2,
                   mb: 3,
                   py: 1,
-                  backgroundColor: "#4b5563",
-                  "&:hover": { backgroundColor: "#6b7280" },
+                  backgroundColor: "#FF0000",
+                  "&:hover": { backgroundColor: "#FF0000" },
                   borderRadius: 1,
                   textTransform: "none",
                   fontSize: "1rem",
@@ -220,8 +205,25 @@ const SignupForm: React.FC = () => {
                   color: "white",
                 }}
               >
-                Sign Up
+                {loading ? "Signing In" : "Sign Up"}
               </Button>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ color: "white", cursor: "pointer" ,textDecoration:"underline"}}
+                align="center"
+                onClick={() => navigate("/login")}
+              >
+                Create a account <span style={{ color: "white",textDecoration:"underline1" }}>Login</span>
+              </Typography>
             </Box>
           </Paper>
         </Box>
