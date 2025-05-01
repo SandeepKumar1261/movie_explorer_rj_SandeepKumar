@@ -10,7 +10,7 @@ import {
   Box,
   Container,
 } from "@mui/material";
-import { loginUser } from "../../../Services/Api.js";
+import { loginUser } from "../../../Services/Api.ts";
 const Loginform: React.FC = () => {
   const navigate = useNavigate();
 
@@ -56,7 +56,7 @@ const Loginform: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#0C0F14",
+        backgroundColor: "black",
         py: 4,
       }}
     >
@@ -77,14 +77,14 @@ const Loginform: React.FC = () => {
           sx={{
             display: "flex",
             justifyContent: "center",
-            backgroundColor: "#0C0F14",
+            backgroundColor: "black",
           }}
         >
           <Paper
             elevation={3}
             sx={{
               padding: { xs: 2, sm: 3 },
-              backgroundColor: "#1F222A",
+              backgroundColor: "black",
               color: "white",
               borderRadius: 2,
               border: "2px solid #374151",
@@ -105,7 +105,7 @@ const Loginform: React.FC = () => {
             <Box
               component="form"
               onSubmit={handleLogin}
-              sx={{ mt: 1, backgroundColor: "#1F222A " }}
+              sx={{ mt: 1, backgroundColor: "black" }}
             >
               <Box sx={{ mb: 2 }}>
                 <TextField
@@ -117,7 +117,7 @@ const Loginform: React.FC = () => {
                   error={!!error && email === ""}
                   variant="outlined"
                   sx={{
-                    backgroundColor: "#374151",
+                    backgroundColor: "black",
                     borderRadius: 2,
                     "& .MuiOutlinedInput-root": {
                       "& input": {

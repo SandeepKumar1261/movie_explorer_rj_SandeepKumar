@@ -8,12 +8,10 @@ class Genre extends Component {
     return (
       <>
         <Navbar />
-        {/* <MovieCarousel /> */}
         <MovieCarousel genre={"Action"} />
-        <MovieCarousel genre={"Adveture"} />
-        <MovieCarousel genre={"Action"} />
-        <MovieCarousel genre={"Action"} />
-
+        <MovieCarousel genre={"Romance"} />
+        <MovieCarousel genre={"Thriller"} />
+        <MovieCarousel genre={"Si-Fi"} />
         <Footer />
       </>
     );

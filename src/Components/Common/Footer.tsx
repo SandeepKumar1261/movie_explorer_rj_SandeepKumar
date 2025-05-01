@@ -8,14 +8,14 @@ const Footer = () => {
       component="footer"
       sx={{
         width: "100%",
-        backgroundColor: "#0C0F14",
+        backgroundColor: "black",
         color: "white",
         py: 8,
         px: 2,
       }}
     >
-      <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
-        <Grid container spacing={{ xs: 2, sm: 4, md: 12, lg: 16, xl: 10 }}>
+      <Box sx={{ maxWidth: "1300px", mx: "auto" }}>
+        <Grid container spacing={{ xs: 2, sm: 4, md: 12, lg: 18, xl: 20 }}>
           <Grid item xs={12} md={4}>
             <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
               MovieExplorer
@@ -42,17 +42,6 @@ const Footer = () => {
                 Home
               </MuiLink>
               <MuiLink
-                href="/movies"
-                underline="hover"
-                sx={{
-                  color: "gray",
-                  "&:hover": { color: "red" },
-                  fontSize: "1.2rem",
-                }}
-              >
-                Movies
-              </MuiLink>
-              <MuiLink
                 href="/genres"
                 underline="hover"
                 sx={{
@@ -64,7 +53,7 @@ const Footer = () => {
                 Genre
               </MuiLink>
               <MuiLink
-                href="/watchlist"
+                href="/subscription"
                 underline="hover"
                 sx={{
                   color: "gray",

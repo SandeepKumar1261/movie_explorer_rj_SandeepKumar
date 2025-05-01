@@ -69,15 +69,15 @@ const Navbar = () => {
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#0C0F14", boxShadow: 3 }}>
+    <AppBar position="static" sx={{ backgroundColor: "black", boxShadow: 3 }}>
       <Toolbar
         sx={{
-          maxWidth: "1280px",
+          maxWidth: "1580px",
           width: "100%",
-          mx: "auto",
+          mx: {sx:"2%",xs:"2%",md:"3%",lg:"1%"},
           display: "flex",
           justifyContent: "space-between",
-          gap: { xs: 1, sm: 2, md: 3, lg: 4 },
+          gap: { xs: 1, sm: 2, md: 3, lg: 20 },
         }}
       >
         <Typography
@@ -87,20 +87,19 @@ const Navbar = () => {
             textDecoration: "none",
             color: "red",
             fontWeight: "bold",
-            left: "0px",
-            fontSize: { xs: "1rem", sm: "1.8rem", md: "2.8rem" },
+            left: "10px",
+            fontSize: { xs: "1.1rem", sm: "1.8rem", md: "1.8rem" },
             fontFamily: "sans-serif",
-            letterSpacing: "1px",
           }}
         >
-          MovieFlix
+          MOVIE EXPLORER
         </Typography>
 
         <Box
           sx={{
             display: { xs: "none", sm: "flex" },
             gap: { xs: 1.5, lg: 3 },
-            fontFamily: "serif",
+            fontFamily: "sans-serif",
             fontSize: { xs: "1rem", lg: "1.25rem" },
           }}
         >
@@ -119,20 +118,6 @@ const Navbar = () => {
           </Typography>
           <Typography
             component={Link}
-            to="/movies"
-            sx={{
-              textDecoration: "none",
-              color: "inherit",
-              fontWeight: "bold",
-              fontFamily: "sans-serif",
-
-              "&:hover": { color: "red" },
-            }}
-          >
-            Movies
-          </Typography>
-          <Typography
-            component={Link}
             to="/genres"
             sx={{
               textDecoration: "none",
@@ -147,7 +132,7 @@ const Navbar = () => {
           </Typography>
           <Typography
             component={Link}
-            to="/myWishlist"
+            to="/subscription"
             sx={{
               textDecoration: "none",
               color: "inherit",
@@ -157,7 +142,7 @@ const Navbar = () => {
               "&:hover": { color: "red" },
             }}
           >
-            My List
+            Subscription
           </Typography>
         </Box>
 
@@ -167,9 +152,11 @@ const Navbar = () => {
             alignItems: "center",
             gap: { xs: 1, sm: 2, md: 3, lg: 4 },
             position: "relative",
+            right:"1%",
+            ml: { xs: "0%", sm: "0%", md: "10%", lg: "10%" },
           }}
         >
-          <Paper
+          {/* <Paper
             component="form"
             sx={{
               display: "flex",
@@ -193,9 +180,9 @@ const Navbar = () => {
               }}
               inputProps={{ "aria-label": "search" }}
             />
-          </Paper>
+          </Paper> */}
 
-          <IconButton onClick={toggleProfileCard} sx={{ color: "white" }}>
+          <IconButton onClick={toggleProfileCard} sx={{ color: "white" ,right:"1%"}}>
             <FaUserCircle size={30} />
           </IconButton>
 

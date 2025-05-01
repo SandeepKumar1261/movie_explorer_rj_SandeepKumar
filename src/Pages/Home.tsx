@@ -1,17 +1,16 @@
 import React, { Component } from "react";
 import Navbar from "../Components/Common/Navbar";
 import Footer from "../Components/Common/Footer";
-import Slider from "../Components/Layouts/Home/Slider";
-import { topRated } from "../Components/Layouts/Home/MovieDetails";
-import MovieCarouselHome from "../Components/Layouts/Movies/MovieCarouselHome";
+import MovieContainer from "../Components/Layouts/Home/MovieContainer";
+import MainCarousel from "../Components/Layouts/Home/MainCarousel";
 
 class Home extends Component {
   render() {
     return (
       <>
         <Navbar />
-        <Slider items={topRated}/>
-        <MovieCarouselHome/>
+        <MainCarousel/>
+        <MovieContainer/>
         <Footer />
       </>
     );

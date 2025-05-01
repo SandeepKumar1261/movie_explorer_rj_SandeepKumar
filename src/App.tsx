@@ -6,7 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import Moviedetails from "./Pages/Moviedetails";
 import Movies from "./Pages/Movies";
 import Genre from "./Pages/Genre";
-import WishList from "./Pages/WishList";
+import Subscription from "./Pages/Subscription";
+import AdminPanel from "./Components/Admin/AdminPanel";
 
 function App() {
   return (
@@ -18,7 +19,8 @@ function App() {
         <Route path="/movies" element={<Movies/>} />
         <Route path="/movie/:movieId" element={<Moviedetails/>} />
         <Route path="/genres" element={<Genre/>} />
-        <Route path="/myWishlist" element={<WishList />} />
+        <Route path="/Subscription" element={<Subscription/>} />
+        <Route path="/admin" element={<AdminPanel/>} />
 
       </Routes>
     </Router>

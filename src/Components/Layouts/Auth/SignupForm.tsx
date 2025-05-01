@@ -10,7 +10,7 @@ import {
   Box,
   Container,
 } from "@mui/material";
-import { signupUser } from "../../../Services/Api.js";
+import { signupUser } from "../../../Services/Api.ts";
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
@@ -218,11 +218,11 @@ const SignupForm: React.FC = () => {
             >
               <Typography
                 variant="body2"
-                sx={{ color: "white", cursor: "pointer" ,textDecoration:"underline"}}
+                sx={{ color: "white", cursor: "pointer" ,textDecoration:"none"}}
                 align="center"
                 onClick={() => navigate("/login")}
               >
-                Create a account <span style={{ color: "white",textDecoration:"underline1" }}>Login</span>
+                Create a account <span style={{ color: "white",textDecoration:"underline" }}>Login</span>
               </Typography>
             </Box>
           </Paper>

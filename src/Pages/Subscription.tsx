@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Navbar from '../Components/Common/Navbar';
 import Footer from '../Components/Common/Footer';
 
-class WishList extends Component {
+class Subscription extends Component {
   render() {
     return (
       <>
@@ -14,4 +14,4 @@ class WishList extends Component {
   }
 }
 
-export default WishList;
+export default Subscription;
