@@ -39,10 +39,9 @@ const SignupForm: React.FC = () => {
       localStorage.setItem("token", data.token);
       navigate("/");
     } catch (err: any) {
-      toast.error("Signup failed. Please try again.");
-      console.error("Signup failed", err);
+      toast.error(err.response.data.errors[0]);
       setError(
-        err.response?.data?.message || "Signup failed. Please try again."
+        err.response.data.errors || "Signup failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -57,7 +56,7 @@ const SignupForm: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#0C0F14",
+        backgroundColor: "black",
         py: 4,
       }}
     >
@@ -79,8 +78,9 @@ const SignupForm: React.FC = () => {
             elevation={3}
             sx={{
               padding: { xs: 2, sm: 3 },
-              backgroundColor: "#1F222A",
+              backgroundColor:"black",
               color: "white",
+              border:"2px solid #374151",
               borderRadius: 2,
               width: { xs: "90%", sm: 400, md: 500 },
               maxWidth: 500,
@@ -193,7 +193,7 @@ const SignupForm: React.FC = () => {
                 variant="contained"
                 disabled={loading}
                 sx={{
-                  mt: 2,
+                  mt: {xs: 1, sm: 1},
                   mb: 3,
                   py: 1,
                   backgroundColor: "#FF0000",

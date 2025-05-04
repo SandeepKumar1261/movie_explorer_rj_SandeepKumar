@@ -10,7 +10,7 @@ import {
   Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { fetchMovies } from "../../../Services/Api";
+import { fetchMoviesAll } from "../../../Services/Api";
 import StarIcon from "@mui/icons-material/Star";
 
 interface Movie {
@@ -35,82 +35,98 @@ const genreFilters = [
 ];
 
 const Movies: React.FC = () => {
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [allMovies, setAllMovies] = useState<Movie[]>([]);
   const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [perPage] = useState(10);
   const navigate = useNavigate();
 
+  const [currentPage, setCurrentPage] = useState(() => {
+    return parseInt(localStorage.getItem("currentPage") || "1");
+  });
+
+  const totalPages = Math.ceil(filteredMovies.length / perPage);
+
   useEffect(() => {
-    const getMovies = async () => {
+    const fetchAllMovies = async () => {
       try {
         setLoading(true);
-        const data = await fetchMovies();
-        setMovies(data);
-        setFilteredMovies(data);
-        setError(null);
+        const allFetchedMovies: Movie[] = [];
+        let page = 1;
+        let hasMore = true;
+
+        while (hasMore) {
+          const response = await fetchMoviesAll(page);
+          if (response?.movies?.length > 0) {
+            allFetchedMovies.push(...response.movies);
+            if (page >= response.pagination.total_pages) {
+              hasMore = false;
+            } else {
+              page++;
+            }
+          } else {
+            hasMore = false;
+          }
+        }
+
+        setAllMovies(allFetchedMovies);
+        setLoading(false);
       } catch (err) {
-        setError("Failed to load movies.");
-      } finally {
+        setError("Failed to fetch movies.");
         setLoading(false);
       }
     };
 
-    getMovies();
+    fetchAllMovies();
   }, []);
 
   useEffect(() => {
-    filterMovies();
-    setVisibleCount(6);
-  }, [searchTerm, selectedGenre, movies]);
+    filterAndSearchMovies();
+  }, [allMovies, searchTerm, selectedGenre]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const bottom =
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-      if (bottom && visibleCount < filteredMovies.length) {
-        setVisibleCount((prev) => prev + 6);
-      }
-    };
+    localStorage.setItem("currentPage", currentPage.toString());
+  }, [currentPage]);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [filteredMovies, visibleCount]);
-
-  const filterMovies = () => {
-    let filtered = [...movies];
+  const filterAndSearchMovies = () => {
+    let result = [...allMovies];
 
     if (selectedGenre !== "All") {
-      console.log(selectedGenre);
-      filtered = filtered.filter((movie) =>
+      result = result.filter((movie) =>
         movie.genre.toLowerCase().includes(selectedGenre.toLowerCase())
       );
     }
 
     if (searchTerm) {
-      filtered = filtered.filter((movie) =>
+      result = result.filter((movie) =>
         movie.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    setFilteredMovies(filtered);
+    setFilteredMovies(result);
+    setCurrentPage(1); // Reset only when search/filter changes
   };
 
   const handleCardClick = (movieId: number) => {
     navigate(`/movie/${movieId}`);
   };
 
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const paginatedMovies = filteredMovies.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
+
   return (
-    <Box
-      sx={{
-        px: { xs: 1, sm: 2, md: 3, lg: 4 },
-        py: 2,
-        backgroundColor: "black",
-      }}
-    >
+    <Box sx={{ px: { xs: 1, sm: 2, md: 3, lg: 4 }, py: 2, backgroundColor: "black" }}>
       <Box
         sx={{
           display: "flex",
@@ -135,9 +151,8 @@ const Movies: React.FC = () => {
               sx={{
                 color: selectedGenre === genre ? "#fff" : "#ccc",
                 borderColor: "#ccc",
-                fontFamily:"sans-serif",
-                backgroundColor:
-                  selectedGenre === genre ? "#333" : "transparent",
+                fontFamily: "sans-serif",
+                backgroundColor: selectedGenre === genre ? "#333" : "transparent",
                 "&:hover": {
                   backgroundColor: "#444",
                 },
@@ -179,7 +194,7 @@ const Movies: React.FC = () => {
         </Box>
       ) : error ? (
         <Typography color="error">{error}</Typography>
-      ) : filteredMovies.length === 0 ? (
+      ) : paginatedMovies.length === 0 ? (
         <Typography color="textSecondary">No movies found.</Typography>
       ) : (
         <>
@@ -191,13 +206,13 @@ const Movies: React.FC = () => {
               justifyContent: { xs: "center", sm: "flex-start" },
             }}
           >
-            {filteredMovies.slice(0, visibleCount).map((movie) => (
+            {paginatedMovies.map((movie) => (
               <Box
                 key={movie.id}
                 onClick={() => handleCardClick(movie.id)}
                 sx={{
-                  width: { xs: "100%", sm: "47%", md: "31%", lg: "23%" },
-                  height: { xs: "60vh", md: "65vh" },
+                  width: { xs: "100%", sm: "47%", md: "31%", lg: "18%" },
+                  height: { xs: "60vh", md: "55vh" },
                   bgcolor: "#2b2b2b",
                   color: "#fff",
                   borderRadius: 2,
@@ -225,10 +240,7 @@ const Movies: React.FC = () => {
                       "https://via.placeholder.com/300x450?text=No+Image"
                     }
                     alt={movie.title}
-                    sx={{
-                      height: "65%",
-                      objectFit: "cover",
-                    }}
+                    sx={{ height: "65%", objectFit: "cover" }}
                   />
                   <CardContent
                     sx={{
@@ -246,15 +258,11 @@ const Movies: React.FC = () => {
                     <Typography variant="subtitle1" noWrap fontWeight="bold">
                       {movie.title}
                     </Typography>
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
-                    >
+                    <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
                       <Typography variant="body2">
                         Rating {movie.rating}/10
                       </Typography>
-                      <StarIcon
-                        sx={{ color: "yellow", fontSize: 18, ml: 0.5 }}
-                      />
+                      <StarIcon sx={{ color: "yellow", fontSize: 18, ml: 0.5 }} />
                     </Box>
                     <Typography variant="body2" sx={{ mt: 0.5 }}>
                       Year: {movie.release_year}
@@ -268,11 +276,35 @@ const Movies: React.FC = () => {
             ))}
           </Box>
 
-          {visibleCount < filteredMovies.length && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-              <CircularProgress size={20} />
-            </Box>
-          )}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 2,
+              mt: 4,
+            }}
+          >
+            <Button
+              variant="contained"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+              sx={{ backgroundColor: "#333", "&:hover": { backgroundColor: "#444" } }}
+            >
+              Previous
+            </Button>
+            <Typography sx={{ color: "#fff" }}>
+              Page {currentPage} of {totalPages}
+            </Typography>
+            <Button
+              variant="contained"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+              sx={{ backgroundColor: "#333", "&:hover": { backgroundColor: "#444" } }}
+            >
+              Next
+            </Button>
+          </Box>
         </>
       )}
     </Box>

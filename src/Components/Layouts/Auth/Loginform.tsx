@@ -107,7 +107,7 @@ const Loginform: React.FC = () => {
               onSubmit={handleLogin}
               sx={{ mt: 1, backgroundColor: "black" }}
             >
-              <Box sx={{ mb: 2 }}>
+              <Box sx={{ mb: 1 }}>
                 <TextField
                   margin="normal"
                   fullWidth
@@ -146,7 +146,7 @@ const Loginform: React.FC = () => {
                 </Typography>
               </Box>
 
-              <Box sx={{ mb: 2 }}>
+              <Box sx={{ mb: 1 }}>
                 <TextField
                   margin="normal"
                   fullWidth
@@ -188,8 +188,8 @@ const Loginform: React.FC = () => {
                 variant="contained"
                 disabled={loading}
                 sx={{
-                  mt: 2,
-                  mb: 3,
+                  mt: 1,
+                  mb: 1,
                   py: 1,
                   backgroundColor: "#FF0000",
                   "&:hover": { backgroundColor: "#FF0000" },
@@ -209,7 +209,8 @@ const Loginform: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                mb: 2,
+                mb: 1,
+                mt:1
               }}
             >
               <Typography

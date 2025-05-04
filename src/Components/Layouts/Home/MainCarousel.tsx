@@ -106,7 +106,7 @@ const MainCarousel: React.FC = () => {
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
-          opacity: 1,
+          opacity: 2,
           zIndex: 1,
           '&::after': {
             content: '""',

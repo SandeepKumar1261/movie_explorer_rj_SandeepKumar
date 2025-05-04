@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FaSearch, FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
+import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import {
@@ -8,8 +8,6 @@ import {
   IconButton,
   Typography,
   Box,
-  InputBase,
-  Paper,
   Menu,
   MenuItem,
   Button,
@@ -20,12 +18,23 @@ const Navbar = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [userData, setUserData] = useState<{ name: string; role: string } | null>(null);
   const navigate = useNavigate();
   const profileCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
+
+    const userString = localStorage.getItem("user");
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        setUserData(user);
+      } catch (err) {
+        console.error("Invalid user data in localStorage");
+      }
+    }
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -37,10 +46,7 @@ const Navbar = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -57,7 +63,9 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
+    setUserData(null);
     setShowProfile(false);
     setAnchorEl(null);
     navigate("/");
@@ -74,7 +82,7 @@ const Navbar = () => {
         sx={{
           maxWidth: "1580px",
           width: "100%",
-          mx: {sx:"2%",xs:"2%",md:"3%",lg:"1%"},
+          mx: { sx: "2%", xs: "2%", md: "3%", lg: "1%" },
           display: "flex",
           justifyContent: "space-between",
           gap: { xs: 1, sm: 2, md: 3, lg: 20 },
@@ -87,8 +95,7 @@ const Navbar = () => {
             textDecoration: "none",
             color: "red",
             fontWeight: "bold",
-            left: "10px",
-            fontSize: { xs: "1.1rem", sm: "1.8rem", md: "1.8rem" },
+            fontSize: { xs: "0.8rem", sm: "1.8rem", md: "1.8rem" },
             fontFamily: "sans-serif",
           }}
         >
@@ -110,7 +117,6 @@ const Navbar = () => {
               textDecoration: "none",
               color: "inherit",
               fontWeight: "bold",
-              fontFamily: "sans-serif",
               "&:hover": { color: "red" },
             }}
           >
@@ -118,17 +124,15 @@ const Navbar = () => {
           </Typography>
           <Typography
             component={Link}
-            to="/genres"
+            to="/movies"
             sx={{
               textDecoration: "none",
               color: "inherit",
               fontWeight: "bold",
-              fontFamily: "sans-serif",
-
               "&:hover": { color: "red" },
             }}
           >
-            Genres
+            Genre
           </Typography>
           <Typography
             component={Link}
@@ -136,8 +140,6 @@ const Navbar = () => {
             sx={{
               textDecoration: "none",
               color: "inherit",
-              fontFamily: "sans-serif",
-
               fontWeight: "bold",
               "&:hover": { color: "red" },
             }}
@@ -150,41 +152,31 @@ const Navbar = () => {
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: { xs: 1, sm: 2, md: 3, lg: 4 },
+            gap: { xs: 0.6, sm: 2, md: 3, lg: 4 },
             position: "relative",
-            right:"1%",
+            right: "1%",
             ml: { xs: "0%", sm: "0%", md: "10%", lg: "10%" },
           }}
         >
-          {/* <Paper
-            component="form"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              width: { xs: 100, sm: 140, md: 200 },
-              borderRadius: 5,
-              bgcolor: "grey.900",
-              px: 1,
-            }}
-          >
-            <FaSearch
-              style={{ color: "gray", marginLeft: 4, fontSize: "0.8rem" }}
-            />
-            <InputBase
-              placeholder="Search..."
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <IconButton onClick={toggleProfileCard} sx={{ color: "white" }}>
+              <FaUserCircle size={25} />
+            </IconButton>
+            <Typography
+              variant="body2"
               sx={{
-                ml: 1,
-                flex: 1,
-                fontSize: "0.9rem",
                 color: "white",
+                fontWeight: "bold",
+                fontFamily: "sans-serif",
               }}
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Paper> */}
-
-          <IconButton onClick={toggleProfileCard} sx={{ color: "white" ,right:"1%"}}>
-            <FaUserCircle size={30} />
-          </IconButton>
+            >
+              {isLoggedIn
+                ? userData?.role === "supervisor"
+                  ? "Supervisor"
+                  : userData?.name || "User"
+                : "Guest"}
+            </Typography>
+          </Box>
 
           <Box sx={{ display: { xs: "block", sm: "none" } }}>
             <IconButton onClick={toggleMenu} sx={{ color: "white" }}>
@@ -192,7 +184,7 @@ const Navbar = () => {
             </IconButton>
           </Box>
 
-          <Menu
+          {/* <Menu
             anchorEl={anchorEl}
             open={showProfile && isLoggedIn}
             onClose={handleMenuClose}
@@ -208,7 +200,38 @@ const Navbar = () => {
                 Logout
               </Button>
             </MenuItem>
-          </Menu>
+          </Menu> */}
+          <Menu
+  anchorEl={anchorEl}
+  open={showProfile && isLoggedIn}
+  onClose={handleMenuClose}
+  ref={profileCardRef}
+  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+  transformOrigin={{ vertical: "top", horizontal: "right" }}
+>
+  <MenuItem disabled sx={{ fontWeight: "bold" }}>
+    👤 Logged In
+  </MenuItem>
+
+  {userData?.role === "supervisor" && (
+    <MenuItem onClick={() => {
+      setShowProfile(false);
+      setAnchorEl(null);
+      navigate("/admin");
+    }}>
+      <Button variant="contained" color="primary" fullWidth>
+        Add Movie
+      </Button>
+    </MenuItem>
+  )}
+
+  <MenuItem onClick={handleLogout}>
+    <Button variant="contained" color="error" fullWidth>
+      Logout
+    </Button>
+  </MenuItem>
+</Menu>
+
         </Box>
       </Toolbar>
 

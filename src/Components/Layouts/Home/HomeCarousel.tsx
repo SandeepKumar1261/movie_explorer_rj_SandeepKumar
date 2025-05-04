@@ -13,7 +13,7 @@ import {
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import StarIcon from "@mui/icons-material/Star";
-import { fetchMovies } from "../../../Services/Api.ts";
+import { fetchMoviesAll } from "../../../Services/Api.ts";
 import { useNavigate } from "react-router-dom";
 
 interface Movie {
@@ -58,26 +58,79 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
   const SCROLL_AMOUNT = CARD_WIDTH + CARD_GAP;
 
   useEffect(() => {
+    // const getMovies = async () => {
+    //   try {
+    //     setLoading(true);
+    //     const data = await fetchMovies();
+    //     if(genre==="Top Rated"){
+    //       setMovies(data.filter((movie) => movie.rating >= 8));
+    //     }
+    //     else if(genre==="Related Movies"){
+    //       console.log(localStorage.getItem("genre"));
+    //       let currentGenre = localStorage.getItem("genre");
+    //       let relMovies=[];
+    //       let genres = currentGenre?.toLowerCase().split(",");
+    //       genres=genres.map(genre => genre.trim());
+    //       console.log(genres)
+    //       relMovies = [...relMovies,data.filter((movie) => genres.includes(movie.genre.toLowerCase()))];
+    //       console.log(relMovies);
+    //       setMovies(relMovies);
+    //       // setMovies(data.filter((movie) => movie.genre ===localStorage.getItem("genre") ).slice(0,5));
+    //     }
+    //     else{
+    //       setMovies(data.filter((movie) => movie.release_year >= 2020));
+    //     }
+    //     setError(null);
+    //   } catch (err) {
+    //     setError("Failed to load movies.");
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
     const getMovies = async () => {
       try {
         setLoading(true);
-        const data = await fetchMovies();
-        if(genre==="Top Rated"){
-          setMovies(data.filter((movie) => movie.rating >= 8));
+        let allMovies: any[] = [];
+        let page = 1;
+        let totalPages = Infinity;
+
+        while (allMovies.length < 10 && page <= totalPages) {
+          const { movies, pagination } = await fetchMoviesAll(page);
+          totalPages = pagination.totalPages;
+
+          let filtered: any[] = [];
+
+          if (genre === "Top Rated") {
+            filtered = movies.filter((movie) => movie.rating >= 8);
+          } else if (genre === "Related Movies") {
+            const currentGenre = localStorage.getItem("genre");
+            let genres =
+              currentGenre
+                ?.toLowerCase()
+                .split(",")
+                .map((g) => g.trim()) || [];
+            filtered = movies.filter((movie) =>
+              genres.some((g) => movie.genre.toLowerCase().includes(g))
+            );
+          } else {
+            filtered = movies.filter((movie) => movie.release_year >= 2020);
+          }
+
+          allMovies = [...allMovies, ...filtered];
+          page++;
         }
-        else if(genre==="Related Movies"){
-          setMovies(data.filter((movie) => movie.genre ===localStorage.getItem("genre") ).slice(0,5));
-        }
-        else{
-          setMovies(data.filter((movie) => movie.release_year >= 2024));
-        }
+
+        // Limit to 10 if more were fetched
+        setMovies(allMovies.slice(0, 10));
         setError(null);
       } catch (err) {
+        console.error(err);
         setError("Failed to load movies.");
       } finally {
         setLoading(false);
       }
     };
+
     getMovies();
   }, [genre]);
 
@@ -85,7 +138,7 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
     const updateMaxScroll = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
-        const totalWidth = movies.length * (getCardWidth() + CARD_GAP); 
+        const totalWidth = movies.length * (getCardWidth() + CARD_GAP);
         const scrollableWidth = totalWidth - containerWidth;
         setMaxScroll(scrollableWidth > 0 ? scrollableWidth : 0);
       }
@@ -157,9 +210,21 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
           sx={{ bgcolor: "rgba(255,255,255,0.1)" }}
         />
         <CardContent>
-          <Skeleton variant="text" width="80%" sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
-          <Skeleton variant="text" width="50%" sx={{ bgcolor: "rgba(255,255,255,0.1)", mt: 1 }} />
-          <Skeleton variant="text" width="70%" sx={{ bgcolor: "rgba(255,255,255,0.1)", mt: 1 }} />
+          <Skeleton
+            variant="text"
+            width="80%"
+            sx={{ bgcolor: "rgba(255,255,255,0.1)" }}
+          />
+          <Skeleton
+            variant="text"
+            width="50%"
+            sx={{ bgcolor: "rgba(255,255,255,0.1)", mt: 1 }}
+          />
+          <Skeleton
+            variant="text"
+            width="70%"
+            sx={{ bgcolor: "rgba(255,255,255,0.1)", mt: 1 }}
+          />
         </CardContent>
       </Card>
     ));
@@ -176,39 +241,37 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
       }}
     >
       <Box
-  sx={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    px: { xs: 2, sm: 4, md: 6 },
-    mb: { xs: 1, sm: 2 },
-  }}
->
-  <Typography
-    variant="h4"
-    sx={{
-      color: "#fff",
-      fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" },
-    }}
-  >
-    {genre}
-  </Typography>
-  <Typography
-    variant="body2"
-    sx={{
-      color: "#00bcd4",
-      cursor: "pointer",
-      fontWeight: "bold",
-      textDecoration: "underline",
-      "&:hover": { color: "#03a9f4" },
-    }}
-    onClick={() => navigate(`/movies`)}
-  >
-    See All
-  </Typography>
-</Box>
-
-      
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          px: { xs: 2, sm: 4, md: 6 },
+          mb: { xs: 1, sm: 2 },
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            color: "#fff",
+            fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" },
+          }}
+        >
+          {genre}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "#00bcd4",
+            cursor: "pointer",
+            fontWeight: "bold",
+            textDecoration: "underline",
+            "&:hover": { color: "#03a9f4" },
+          }}
+          onClick={() => navigate(`/movies`)}
+        >
+          See All
+        </Typography>
+      </Box>
 
       {loading ? (
         <Box
@@ -232,11 +295,19 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
           </Box>
         </Box>
       ) : error ? (
-        <Typography color="error" align="center" sx={{ py: { xs: 3, md: 6 }, px: 2 }}>
+        <Typography
+          color="error"
+          align="center"
+          sx={{ py: { xs: 3, md: 6 }, px: 2 }}
+        >
           {error}
         </Typography>
       ) : movies.length === 0 ? (
-        <Typography color="textSecondary" align="center" sx={{ py: { xs: 3, md: 6 }, px: 2 }}>
+        <Typography
+          color="textSecondary"
+          align="center"
+          sx={{ py: { xs: 3, md: 6 }, px: 2 }}
+        >
           No movies found for {genre}.
         </Typography>
       ) : (
@@ -298,17 +369,28 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
                 <CardMedia
                   component="img"
                   height={isXsScreen ? 200 : 250}
-                  image={movie.poster_url || "https://via.placeholder.com/300x450?text=No+Image"}
+                  image={
+                    movie.poster_url ||
+                    "https://via.placeholder.com/300x450?text=No+Image"
+                  }
                   alt={movie.title || "Movie poster"}
                   sx={{ height: 250, objectFit: "cover" }}
                 />
                 <CardContent>
-                  <Typography variant="subtitle1" noWrap sx={{ fontWeight: "bold" }}>
+                  <Typography
+                    variant="subtitle1"
+                    noWrap
+                    sx={{ fontWeight: "bold" }}
+                  >
                     {movie.title}
                   </Typography>
                   <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                    <Typography variant="body2">Rating {movie.rating}/10</Typography>
-                    <StarIcon sx={{ color: "#FFD700", fontSize: 18, ml: 0.5 }} />
+                    <Typography variant="body2">
+                      Rating {movie.rating}/10
+                    </Typography>
+                    <StarIcon
+                      sx={{ color: "#FFD700", fontSize: 18, ml: 0.5 }}
+                    />
                   </Box>
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     Released Year: {movie.release_year}
