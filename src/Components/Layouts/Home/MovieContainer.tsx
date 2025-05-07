@@ -1,8 +1,10 @@
 import React from "react";
-import HomeCarousel from "./Homecarousel";
+import MainCarousel from "./MainCarousel";
+import HomeCarousel from "./HomeCarousel";
 const MovieContainer = () => {
   return (
     <>
+    <MainCarousel/>
     <HomeCarousel genre={"Top Rated"}/>
     <HomeCarousel genre={"Latest Released"}/>
     </>

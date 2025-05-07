@@ -1,449 +1,400 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
+  Box,
+  Typography,
   TextField,
   Button,
-  Card,
-  CardContent,
-  Typography,
-  Box,
+  Container,
+  Paper,
+  CircularProgress,
+  MenuItem,
+  Snackbar,
+  Alert,
+  Grid,
   useMediaQuery,
   useTheme,
-} from '@mui/material';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+  Divider,
+} from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import { addMovie, updateMovie } from "../../Utils/Api";
 
-type Movie = {
-  id: number;
+interface Movie {
+  id?: number;
   title: string;
   genre: string;
+  rating: number;
+  poster_url: string | File;
+  banner_url: string | File;
   release_year: number;
-  rating: string;
-  description: string;
   director: string;
-  duration: number;
-  poster_url: string;
-  banner_url: string;
-};
+  description: string;
+}
+
+const genres = [
+  "Action",
+  "Romance",
+  "Thriller",
+  "Drama",
+  "Comedy",
+  "Sci-Fi",
+  "Horror",
+];
 
 const AdminPanel: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { movieId, movie } = location.state || {};
 
-  const [formData, setFormData] = useState<Omit<Movie, 'id'>>({
-    title: '',
-    genre: '',
+  const [formData, setFormData] = useState<Movie>({
+    id: undefined,
+    title: "",
+    genre: "",
+    rating: 0,
+    poster_url: "",
+    banner_url: "",
     release_year: new Date().getFullYear(),
-    rating: '',
-    description: '',
-    director: '',
-    duration: 0,
-    poster_url: '',
-    banner_url: '',
+    director: "",
+    description: "",
   });
 
-  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingMovieId, setEditingMovieId] = useState<number | null>(null);
+  const [preview, setPreview] = useState<{
+    poster_url?: string;
+    banner_url?: string;
+  }>({});
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error",
+  });
 
-  const validateForm = (): boolean => {
-    const errors: { [key: string]: string } = {};
-    for (const key in formData) {
-      if (
-        formData[key as keyof typeof formData] === '' ||
-        formData[key as keyof typeof formData] === null ||
-        (typeof formData[key as keyof typeof formData] === 'number' &&
-          formData[key as keyof typeof formData] === 0)
-      ) {
-        errors[key] = 'This field is required';
-      }
+  const isEditMode = !!movieId;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  useEffect(() => {
+    if (isEditMode && movie) {
+      setFormData({
+        id: movie.id,
+        title: movie.title || "",
+        genre: movie.genre || "",
+        rating: movie.rating || 0,
+        poster_url: movie.poster_url || "",
+        banner_url: movie.banner_url || "",
+        release_year: movie.release_year || new Date().getFullYear(),
+        director: movie.director || "",
+        description: movie.description || "",
+      });
+
+      setPreview({
+        poster_url:
+          typeof movie.poster_url === "string" ? movie.poster_url : "",
+        banner_url:
+          typeof movie.banner_url === "string" ? movie.banner_url : "",
+      });
     }
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+  }, [isEditMode, movie, movieId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) : value,
+      [name]:
+        name === "rating" || name === "release_year" ? Number(value) : value,
     }));
-    setFormErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  const handleFileChange = (
+  const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: 'poster_url' | 'banner_url'
+    field: "poster_url" | "banner_url"
   ) => {
     const file = e.target.files?.[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, [field]: imageUrl }));
-      setFormErrors((prev) => ({ ...prev, [field]: '' }));
+      setFormData((prev) => ({ ...prev, [field]: file }));
+      const reader = new FileReader();
+      reader.onloadend = () =>
+        setPreview((prev) => ({ ...prev, [field]: reader.result as string }));
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleAddOrUpdateMovie = () => {
-    if (!validateForm()) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-    if (isEditing && editingMovieId !== null) {
-      alert('Movie updated successfully!');
-    } else {
-      alert('Movie added successfully!');
+    try {
+      const data = new FormData();
+
+      data.append("title", formData.title);
+      data.append("genre", formData.genre);
+      data.append("rating", formData.rating.toString());
+      data.append("release_year", formData.release_year.toString());
+      data.append("director", formData.director);
+      data.append("description", formData.description);
+
+      if (formData.poster_url instanceof File) {
+        data.append("poster", formData.poster_url);
+      }
+
+      if (formData.banner_url instanceof File) {
+        data.append("banner", formData.banner_url);
+      }
+
+      if (isEditMode && formData.id !== undefined) {
+        await updateMovie(formData.id, data);
+        setSnackbar({
+          open: true,
+          message: "Movie updated successfully!",
+          severity: "success",
+        });
+      } else {
+        await addMovie(data);
+        setSnackbar({
+          open: true,
+          message: "Movie added successfully!",
+          severity: "success",
+        });
+      }
+
+      setTimeout(() => navigate("/movies"), 1500);
+    } catch (err) {
+      console.error(err);
+      setSnackbar({
+        open: true,
+        message: isEditMode
+          ? "Failed to update movie."
+          : "Failed to add movie.",
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setFormData({
-      title: '',
-      genre: '',
-      release_year: new Date().getFullYear(),
-      rating: '',
-      description: '',
-      director: '',
-      duration: 0,
-      poster_url: '',
-      banner_url: '',
-    });
-    setIsEditing(false);
-    setEditingMovieId(null);
-    setFormErrors({});
+  const textFieldStyle = {
+    input: { color: "#fff" },
+    textarea: { color: "#fff" },
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": { borderColor: "gray" },
+      "&:hover fieldset": { borderColor: "#fff" },
+    },
+    "& .MuiInputLabel-root": { color: "gray" },
+    "& .MuiInputLabel-root.Mui-focused": { color: "#fff" },
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        mt:1,
-        mb:0.2,
-        // minHeight: '100vh',
-        p: { xs: 1, sm: 1 },
-        width: '100%',
-        // maxWidth: '800px',
-        bgcolor: 'black',
-        mx: 'auto',
-      }}
-    >
-      <Card
-        sx={{
-          p: { xs: 2, sm: 3 },
-          width: '100%',
-          maxWidth: '800px',
-          bgcolor: 'rgba(0, 0, 0, 0.1)',
-          color: '#fff',
-          border: '2px solid lightgray',
-          borderRadius: 2,
-          backdropFilter: 'blur(5px)',
-        }}
+    <Container maxWidth={isMobile ? "sm" : "md"} sx={{ py: 3 }}>
+      <Paper
+        elevation={3}
+        sx={{ p: 3, backgroundColor: "#1e1e1e", color: "#fff" }}
       >
-        <Box>
-          <Typography
-            variant={isMobile ? 'h6' : 'h5'}
-            mb={2}
-            align="center"
-            sx={{ fontWeight: 'bold', color: '#fff' }}
+        <Typography variant="h5" textAlign="center" mb={2}>
+          {isEditMode ? "Edit Movie" : "Add New Movie"}
+        </Typography>
+
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
+          <TextField
+            name="title"
+            label="Title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            fullWidth
+            sx={textFieldStyle}
+          />
+          <TextField
+            name="genre"
+            select
+            label="Genre"
+            value={formData.genre}
+            onChange={handleChange}
+            required
+            fullWidth
+            sx={textFieldStyle}
           >
-            {isEditing ? 'Edit Movie' : 'Add New Movie'}
-          </Typography>
+            {genres.map((g) => (
+              <MenuItem key={g} value={g}>
+                {g}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            name="rating"
+            label="Rating (0-10)"
+            type="number"
+            inputProps={{ min: 0, max: 10, step: 0.1 }}
+            value={formData.rating}
+            onChange={handleChange}
+            required
+            fullWidth
+            sx={textFieldStyle}
+          />
 
-          <CardContent sx={{ p: { xs: 0, sm: 1 } }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {/* First row - Title and Director */}
-              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                <TextField
-                  label="Movie Title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  error={!!formErrors.title}
-                  helperText={formErrors.title}
-                  InputLabelProps={{ style: { color: '#ccc' } }}
-                  InputProps={{ style: { color: '#fff' } }}
-                  sx={{
-                    flex: 1,
-                    '& .MuiOutlinedInput-root': {
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
-                      '& fieldset': { borderColor: 'red' },
-                      '&:hover fieldset': { borderColor: 'red' },
-                      '&.Mui-focused fieldset': { borderColor: 'red' },
-                    },
-                  }}
-                  size={isMobile ? 'small' : 'medium'}
-                />
-                <TextField
-                  label="Director"
-                  name="director"
-                  value={formData.director}
-                  onChange={handleChange}
-                  error={!!formErrors.director}
-                  helperText={formErrors.director}
-                  InputLabelProps={{ style: { color: '#ccc' } }}
-                  InputProps={{ style: { color: '#fff' } }}
-                  sx={{
-                    flex: 1,
-                    '& .MuiOutlinedInput-root': {
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
-                      '& fieldset': { borderColor: 'red' },
-                      '&:hover fieldset': { borderColor: 'red' },
-                      '&.Mui-focused fieldset': { borderColor: 'red' },
-                    },
-                  }}
-                  size={isMobile ? 'small' : 'medium'}
-                />
-              </Box>
+          <Divider sx={{ bgcolor: "#444" }} />
 
-              {/* Second row - Genre, Year, Duration */}
-              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                <TextField
-                  label="Genre"
-                  name="genre"
-                  value={formData.genre}
-                  onChange={handleChange}
-                  error={!!formErrors.genre}
-                  helperText={formErrors.genre}
-                  InputLabelProps={{ style: { color: '#ccc' } }}
-                  InputProps={{ style: { color: '#fff' } }}
-                  sx={{
-                    flex: 1,
-                    '& .MuiOutlinedInput-root': {
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
-                      '& fieldset': { borderColor: 'red' },
-                      '&:hover fieldset': { borderColor: 'red' },
-                      '&.Mui-focused fieldset': { borderColor: 'red' },
-                    },
-                  }}
-                  size={isMobile ? 'small' : 'medium'}
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography>Poster</Typography>
+              <Button
+                component="label"
+                variant="outlined"
+                fullWidth
+                sx={{ color: "#fff", borderColor: "gray" }}
+              >
+                Choose Poster
+                <input
+                  hidden
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, "poster_url")}
                 />
-                <Box sx={{ flex: 1, display: 'flex', gap: 2 }}>
-                  <TextField
-                    label="Release Year"
-                    name="release_year"
-                    type="number"
-                    value={formData.release_year}
-                    onChange={handleChange}
-                    error={!!formErrors.release_year}
-                    helperText={formErrors.release_year}
-                    InputLabelProps={{ style: { color: '#ccc' } }}
-                    InputProps={{ style: { color: '#fff' } }}
-                    sx={{
-                      width: '100%',
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: 'rgba(255, 255, 255, 0.1)',
-                        '& fieldset': { borderColor: 'red' },
-                        '&:hover fieldset': { borderColor: 'red' },
-                        '&.Mui-focused fieldset': { borderColor: 'red' },
-                      },
+              </Button>
+              {preview.poster_url && (
+                <Box
+                  sx={{
+                    mt: 1,
+                    width: "100%",
+                    height: 180,
+                    bgcolor: "#333",
+                    borderRadius: 1,
+                    overflow: "hidden",
+                  }}
+                >
+                  <img
+                    src={preview.poster_url}
+                    alt="poster preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
                     }}
-                    size={isMobile ? 'small' : 'medium'}
-                  />
-                  <TextField
-                    label="Duration (min)"
-                    name="duration"
-                    type="number"
-                    value={formData.duration}
-                    onChange={handleChange}
-                    error={!!formErrors.duration}
-                    helperText={formErrors.duration}
-                    InputLabelProps={{ style: { color: '#ccc' } }}
-                    InputProps={{ style: { color: '#fff' } }}
-                    sx={{
-                      width: '100%',
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: 'rgba(255, 255, 255, 0.1)',
-                        '& fieldset': { borderColor: 'red' },
-                        '&:hover fieldset': { borderColor: 'red' },
-                        '&.Mui-focused fieldset': { borderColor: 'red' },
-                      },
-                    }}
-                    size={isMobile ? 'small' : 'medium'}
                   />
                 </Box>
-              </Box>
+              )}
+            </Grid>
 
-              {/* Third row - Rating and Description */}
-              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                <TextField
-                  label="Rating"
-                  name="rating"
-                  value={formData.rating}
-                  onChange={handleChange}
-                  error={!!formErrors.rating}
-                  helperText={formErrors.rating}
-                  InputLabelProps={{ style: { color: '#ccc' } }}
-                  InputProps={{ style: { color: '#fff' } }}
-                  sx={{
-                    flex: 1,
-                    '& .MuiOutlinedInput-root': {
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
-                      '& fieldset': { borderColor: 'red' },
-                      '&:hover fieldset': { borderColor: 'red' },
-                      '&.Mui-focused fieldset': { borderColor: 'red' },
-                    },
-                  }}
-                  placeholder="PG-13, R, G, etc."
-                  size={isMobile ? 'small' : 'medium'}
+            <Grid item xs={12} sm={6}>
+              <Typography>Banner</Typography>
+              <Button
+                component="label"
+                variant="outlined"
+                fullWidth
+                sx={{ color: "#fff", borderColor: "gray" }}
+              >
+                Choose Banner
+                <input
+                  hidden
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, "banner_url")}
                 />
-                <TextField
-                  label="Description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  error={!!formErrors.description}
-                  helperText={formErrors.description}
-                  InputLabelProps={{ style: { color: '#ccc' } }}
-                  InputProps={{ style: { color: '#fff' } }}
+              </Button>
+              {preview.banner_url && (
+                <Box
                   sx={{
-                    flex: 1,
-                    '& .MuiOutlinedInput-root': {
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
-                      '& fieldset': { borderColor: 'red' },
-                      '&:hover fieldset': { borderColor: 'red' },
-                      '&.Mui-focused fieldset': { borderColor: 'red' },
-                    },
+                    mt: 1,
+                    width: "100%",
+                    height: 180,
+                    bgcolor: "#333",
+                    borderRadius: 1,
+                    overflow: "hidden",
                   }}
-                  multiline
-                  rows={isMobile ? 2 : 3}
-                  size={isMobile ? 'small' : 'medium'}
-                />
-              </Box>
+                >
+                  <img
+                    src={preview.banner_url}
+                    alt="banner preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+              )}
+            </Grid>
+          </Grid>
 
-              {/* Fourth row - Poster and Banner */}
-              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                <Box sx={{ flex: 1 }}>
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    startIcon={<AddPhotoAlternateIcon />}
-                    sx={{
-                      color: '#ccc',
-                      borderColor: 'red',
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
-                      '&:hover': { borderColor: 'red', bgcolor: 'rgba(255, 255, 255, 0.2)' },
-                      height: '100px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    fullWidth
-                  >
-                    <Typography variant="body2">
-                      {formData.poster_url ? 'Poster Selected' : 'Upload Movie Poster'}
-                    </Typography>
-                    {formData.poster_url && (
-                      <img
-                        src={formData.poster_url}
-                        alt="Selected poster"
-                        style={{ height: '60px', marginTop: '8px', borderRadius: 4 }}
-                      />
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={(e) => handleFileChange(e, 'poster_url')}
-                    />
-                  </Button>
-                  {formErrors.poster_url && (
-                    <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                      {formErrors.poster_url}
-                    </Typography>
-                  )}
-                </Box>
-                <Box sx={{ flex: 1 }}>
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    startIcon={<AddPhotoAlternateIcon />}
-                    sx={{
-                      color: '#ccc',
-                      borderColor: 'red',
-                      bgcolor: 'rgba(255, 255, 255, 0.1)',
-                      '&:hover': { borderColor: 'red', bgcolor: 'rgba(255, 255, 255, 0.2)' },
-                      height: '100px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    fullWidth
-                  >
-                    <Typography variant="body2">
-                      {formData.banner_url ? 'Banner Selected' : 'Upload Movie Banner'}
-                    </Typography>
-                    {formData.banner_url && (
-                      <img
-                        src={formData.banner_url}
-                        alt="Selected banner"
-                        style={{ height: '60px', marginTop: '8px', borderRadius: 4 }}
-                      />
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={(e) => handleFileChange(e, 'banner_url')}
-                    />
-                  </Button>
-                  {formErrors.banner_url && (
-                    <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                      {formErrors.banner_url}
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
+          <TextField
+            name="release_year"
+            label="Release Year"
+            type="number"
+            value={formData.release_year}
+            onChange={handleChange}
+            required
+            fullWidth
+            sx={textFieldStyle}
+          />
+          <TextField
+            name="director"
+            label="Director"
+            value={formData.director}
+            onChange={handleChange}
+            required
+            fullWidth
+            sx={textFieldStyle}
+          />
 
-              {/* Action buttons */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, mt: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, width: '100%' }}>
-                  {isEditing && (
-                    <Button
-                      variant="outlined"
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditingMovieId(null);
-                        setFormData({
-                          title: '',
-                          genre: '',
-                          release_year: new Date().getFullYear(),
-                          rating: '',
-                          description: '',
-                          director: '',
-                          duration: 0,
-                          poster_url: '',
-                          banner_url: '',
-                        });
-                        setFormErrors({});
-                      }}
-                      sx={{
-                        color: '#fff',
-                        borderColor: 'red',
-                        bgcolor: 'rgba(255, 255, 255, 0.1)',
-                        '&:hover': { borderColor: 'red', bgcolor: 'rgba(255, 255, 255, 0.2)' },
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    onClick={handleAddOrUpdateMovie}
-                    sx={{
-                      bgcolor: 'red',
-                      '&:hover': { bgcolor: '#d00000' },
-                      color: '#fff',
-                      px: 4,
-                      width: '100%',
-                      maxWidth: '200px',
-                    }}
-                  >
-                    {isEditing ? 'Update Movie' : 'Add Movie'}
-                  </Button>
-                </Box>
-              </Box>
-            </Box>
-          </CardContent>
+          <TextField
+            name="description"
+            label="Description"
+            value={formData.description}
+            onChange={handleChange}
+            multiline
+            rows={4}
+            required
+            fullWidth
+            sx={textFieldStyle}
+          />
+
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              mt: 2,
+              flexDirection: isMobile ? "column" : "row",
+            }}
+          >
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loading}
+              fullWidth
+              sx={{ backgroundColor: "#333" }}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : isEditMode ? (
+                "Update"
+              ) : (
+                "Add"
+              )}
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate("/movies")}
+              fullWidth
+              sx={{ borderColor: "gray", color: "#fff" }}
+            >
+              Cancel
+            </Button>
+          </Box>
         </Box>
-      </Card>
-    </Box>
+      </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Container>
   );
 };
 

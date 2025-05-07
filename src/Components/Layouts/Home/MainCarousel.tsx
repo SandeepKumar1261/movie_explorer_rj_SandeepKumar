@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchMovies } from '../../../Services/Api.ts';
+import { fetchMovies } from '../../../Utils/Api';
 import {
   Box,
   Typography,
@@ -12,6 +12,8 @@ import {
   useTheme,
   useMediaQuery
 } from '@mui/material';
+import StarIcon from "@mui/icons-material/Star";
+
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
@@ -159,7 +161,9 @@ const MainCarousel: React.FC = () => {
           >
             <Typography variant="body1">Genre: {currentMovie.genre}</Typography>
             <Typography variant="body1">Year: {currentMovie.release_year}</Typography>
-            <Typography variant="body1">Rating: {currentMovie.rating}/10</Typography>
+            <Typography variant="body1">Rating: {currentMovie.rating}/10 <StarIcon
+                                  sx={{ color: "#FFD700", fontSize: 18, ml: 0.5 }}
+                                /></Typography>
           </Stack>
           
           <Typography 
@@ -208,7 +212,7 @@ const MainCarousel: React.FC = () => {
         >
           <CardMedia
             component="img"
-            image={currentMovie.banner_url || currentMovie.poster_url}
+            image={currentMovie.poster_url || currentMovie.banner_url}
             alt={currentMovie.title}
             sx={{ width: '100%', height: 'auto', objectFit: 'cover' }}
           />

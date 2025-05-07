@@ -13,7 +13,7 @@ import {
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import StarIcon from "@mui/icons-material/Star";
-import { fetchMovies } from "../../../Services/Api.ts";
+import { fetchMovies } from "../../../Utils/Api.ts";
 import { useNavigate } from "react-router-dom";
 
 interface Movie {

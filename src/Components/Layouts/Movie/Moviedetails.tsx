@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { fetchMovieDetails } from "../../../Services/Api.ts";
+import { fetchMovieDetails } from "../../../Utils/Api";
 import alterImage from "../../../assets/FightClub.jpeg";
 import {
   Grid,
@@ -25,6 +25,7 @@ interface Movie {
   description?: string;
   duration?: number;
   poster_url?: string;
+  banner_url?: string;
 }
 
 const MovieDetails: React.FC = () => {
@@ -205,21 +206,22 @@ const MovieDetails: React.FC = () => {
               }}
             >
               <Typography fontWeight="medium">Rating:</Typography>
-              {movie.rating ? (
+
+              {/* {movie.rating ? ( */}
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography>{movie.rating}/10</Typography>
-                  <Rating
-                    value={movie.rating / 2}
-                    precision={0.5}
+                    
+                    {/* value={movie.rating / 2} */}
+                    <Typography>{movie.rating}/10   </Typography><StarIcon sx={{ color: "yellow", fontSize: 18, ml: 0.5 }} />
+                  {/* <Rating
                     readOnly
                     size={isMobile ? "small" : "medium"}
                     icon={<StarIcon sx={{ color: "#FFD700" }} />}
                     emptyIcon={<StarIcon sx={{ color: "grey.500" }} />}
-                  />
+                  /> */}
                 </Box>
-              ) : (
+              {/* ) : (
                 <Typography>N/A</Typography>
-              )}
+              )} */}
             </Box>
 
             <Typography sx={{ textAlign: { xs: "center", sm: "left" } }}>
@@ -230,8 +232,9 @@ const MovieDetails: React.FC = () => {
             <Typography sx={{ textAlign: { xs: "center", sm: "left" } }}>
               <span style={{ fontWeight: "medium" }}>Year Released:</span>{" "}
               {movie.release_year
-                ? new Date(movie.release_year).getFullYear()
-                : "N/A"}
+                ? movie.release_year.toString()
+                : "N/A"
+                }
             </Typography>
           </Box>
 

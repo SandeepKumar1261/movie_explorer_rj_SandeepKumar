@@ -6,44 +6,64 @@ import {
   Button,
   Typography,
   Paper,
-  Alert,
   Box,
   Container,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
-import { loginUser } from "../../../Services/Api.ts";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { loginUser } from "../../../Utils/Api.ts";
+
 const Loginform: React.FC = () => {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [emailError, setEmailError] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string>("");
+  const [loginError, setLoginError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    const validateEmail = (email: string): boolean => {
+      const emailRegex = /^.+@.+$/;
+      return emailRegex.test(email);
+    };
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    setEmailError("");
+    setPasswordError("");
+    setLoginError("");
 
-    if (email === "" || password === "") {
-      setError("Both fields are required.");
+    let hasError = false;
+
+    if (email === "") {
+      setEmailError("Email is required");
+      hasError = true;
+    }
+    if (password === "") {
+      setPasswordError("Password is required");
+      hasError = true;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError("Not a valid email");
+      hasError = true;
+    }
+    if (hasError) {
       setLoading(false);
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await loginUser(email, password);
       toast.success("Login successful!");
-      console.log(response);
       localStorage.setItem("token", response.token);
       navigate("/");
     } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.message) {
-        toast.error(err.response.data.message);
-        setError(err.response.data.message);
-      } else {
-        toast.error("Login failed. Please try again.");
-        setError("Login failed. Please try again.");
-      }
+      console.log(err.response.data.error);
+      setLoginError(err.response.data.error);
     } finally {
       setLoading(false);
     }
@@ -71,7 +91,6 @@ const Loginform: React.FC = () => {
         theme="dark"
         style={{ top: "20px" }}
       />
-
       <Container maxWidth="lg">
         <Box
           sx={{
@@ -101,7 +120,6 @@ const Loginform: React.FC = () => {
             >
               Login
             </Typography>
-
             <Box
               component="form"
               onSubmit={handleLogin}
@@ -112,9 +130,8 @@ const Loginform: React.FC = () => {
                   margin="normal"
                   fullWidth
                   placeholder="Enter Your Email"
-                  type="email"
                   onChange={(e) => setEmail(e.target.value)}
-                  error={!!error && email === ""}
+                  error={!!emailError}
                   variant="outlined"
                   sx={{
                     backgroundColor: "black",
@@ -133,7 +150,6 @@ const Loginform: React.FC = () => {
                     style: { color: "white" },
                   }}
                 />
-
                 <Typography
                   variant="caption"
                   sx={{
@@ -142,7 +158,7 @@ const Loginform: React.FC = () => {
                     mt: 0.5,
                   }}
                 >
-                  {email === "" && error ? "Email is required" : " "}
+                  {emailError}
                 </Typography>
               </Box>
 
@@ -151,10 +167,10 @@ const Loginform: React.FC = () => {
                   margin="normal"
                   fullWidth
                   placeholder="Enter Your Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  error={!!error && password === ""}
+                  error={!!passwordError}
                   variant="outlined"
                   sx={{
                     backgroundColor: "#374151",
@@ -167,7 +183,18 @@ const Loginform: React.FC = () => {
                     },
                   }}
                   InputProps={{
-                    style: { color: "#5B5FE9" },
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          sx={{ color: "white" }}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    style: { color: "white" },
                   }}
                 />
                 <Typography
@@ -178,10 +205,18 @@ const Loginform: React.FC = () => {
                     mt: 0.5,
                   }}
                 >
-                  {password === "" && error ? "Password is required" : " "}
+                  {passwordError}
                 </Typography>
               </Box>
 
+              {loginError && (
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#f87171", mb: 1, textAlign: "center" }}
+                >
+                  {loginError}
+                </Typography>
+              )}
               <Button
                 type="submit"
                 fullWidth
@@ -203,14 +238,13 @@ const Loginform: React.FC = () => {
                 {loading ? "Logging in..." : "Login"}
               </Button>
             </Box>
-
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 mb: 1,
-                mt:1
+                mt: 1,
               }}
             >
               <Typography
@@ -219,8 +253,16 @@ const Loginform: React.FC = () => {
                 align="center"
                 onClick={() => navigate("/signup")}
               >
-                Create a account{" "}
-                <span style={{ color: "white" ,font:"bold",textDecoration:"underline"}}> SignUp</span>
+                Create an account{" "}
+                <span
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    textDecoration: "underline",
+                  }}
+                >
+                  SignUp
+                </span>
               </Typography>
             </Box>
           </Paper>
