@@ -19,13 +19,11 @@ const SignupForm: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Error state management for each field
   const [nameError, setNameError] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>("");
 
-  // API error state
   const [apiError, setApiError] = useState<string>("");
 
   const isEmailValid = (email: string) => {
@@ -40,7 +38,7 @@ const SignupForm: React.FC = () => {
       const minLengthRegex = /.{8,}/; // At least 8 characters
       const numberRegex = /[0-9]/; // At least one number
       const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/; // At least one special character
-    
+
       if (!minLengthRegex.test(password)) {
         return "Password must be at least 8 characters.";
       }
@@ -50,17 +48,15 @@ const SignupForm: React.FC = () => {
       if (!specialCharRegex.test(password)) {
         return "Password must contain at least one special character.";
       }
-      return ""; // Password is valid
+      return "";
     };
 
-    // Reset error messages
     setNameError("");
     setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
-    setApiError("");  // Reset API error
+    setApiError("");
 
-    // Validation
     let valid = true;
 
     if (!name) {
@@ -77,8 +73,7 @@ const SignupForm: React.FC = () => {
     if (!password) {
       setPasswordError("Password is required.");
       valid = false;
-    }
-    else{
+    } else {
       const passwordValidationError = isPasswordValid(password);
       if (passwordValidationError) {
         setPasswordError(passwordValidationError);
@@ -95,7 +90,7 @@ const SignupForm: React.FC = () => {
 
     if (!valid) {
       setLoading(false);
-      return; // Stop if validation fails
+      return;
     }
 
     try {
@@ -104,14 +99,15 @@ const SignupForm: React.FC = () => {
       toast.success("Signup successful!");
       navigate("/login");
     } catch (err: any) {
-      // toast.error(err.response?.data?.errors?.[0] || "Signup failed.");
-      
-      // Handle API error and display it
-      setApiError(err.response?.data?.errors?.[0] || "Signup failed. Please try again.");
+      setApiError(
+        err.response?.data?.errors?.[0] || "Signup failed. Please try again."
+      );
       setNameError(err.response?.data?.errors?.name || "");
       setEmailError(err.response?.data?.errors?.email || "");
       setPasswordError(err.response?.data?.errors?.password || "");
-      setConfirmPasswordError(err.response?.data?.errors?.confirmPassword || "");
+      setConfirmPasswordError(
+        err.response?.data?.errors?.confirmPassword || ""
+      );
     } finally {
       setLoading(false);
     }
@@ -143,14 +139,15 @@ const SignupForm: React.FC = () => {
               maxWidth: 500,
             }}
           >
-            <Typography variant="h5" align="center" sx={{ mb: 1, fontWeight: "bold" }}>
+            <Typography
+              variant="h5"
+              align="center"
+              sx={{ mb: 1, fontWeight: "bold" }}
+            >
               Sign Up
             </Typography>
 
-            {/* API Error Message */}
-            
             <Box component="form" onSubmit={handleSignup} sx={{ mt: 1 }}>
-              {/* Name */}
               <TextField
                 fullWidth
                 placeholder="Enter Your Name"
@@ -173,7 +170,6 @@ const SignupForm: React.FC = () => {
                 {nameError}
               </Typography>
 
-              {/* Email */}
               <TextField
                 fullWidth
                 placeholder="Enter Your Email"
@@ -196,7 +192,6 @@ const SignupForm: React.FC = () => {
                 {emailError}
               </Typography>
 
-              {/* Password */}
               <TextField
                 fullWidth
                 placeholder="Enter Password"
@@ -220,7 +215,6 @@ const SignupForm: React.FC = () => {
                 {passwordError}
               </Typography>
 
-              {/* Confirm Password */}
               <TextField
                 fullWidth
                 placeholder="Confirm Password"
@@ -244,12 +238,23 @@ const SignupForm: React.FC = () => {
                 {confirmPasswordError}
               </Typography>
               {apiError && (
-              <Box sx={{  mt:0.7,mb: 0.7, backgroundColor: "black", padding: 1, borderRadius: 1 }}>
-                <Typography variant="body2" sx={{ color: "red", textAlign: "center" }}>
-                  {apiError}
-                </Typography>
-              </Box>
-            )}
+                <Box
+                  sx={{
+                    mt: 0.7,
+                    mb: 0.7,
+                    backgroundColor: "black",
+                    padding: 1,
+                    borderRadius: 1,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "red", textAlign: "center" }}
+                  >
+                    {apiError}
+                  </Typography>
+                </Box>
+              )}
 
               <Button
                 type="submit"

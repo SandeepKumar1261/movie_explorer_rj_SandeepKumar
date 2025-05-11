@@ -9,16 +9,17 @@ import Subscription from "./Pages/Subscription.tsx";
 import PublicRoute from "./Utils/Publicroute.tsx";
 import 'react-toastify/dist/ReactToastify.css';
 import Admin from "./Pages/Admin.tsx";
-import Stripe from "./Components/Stripe/Stripe.tsx";
 import { generateToken, messaging } from "./Notification/firebase.ts";
 import { onMessage } from "firebase/messaging";
 import { useEffect } from "react";
 import ScrollToTop from "./Utils/ScrollTop.tsx";
+import WishList from "./Pages/WishList.tsx";
+import SubscriptionPlans from "./Components/Layouts/Subscription/SubscriptionPlans.tsx";
+import Success from "./Components/Layouts/Subscription/Success.tsx";
 
   
 function App() {
   useEffect(() => {
-    // Generate FCM token and send to backend
     generateToken();
 
     onMessage(messaging, (payload) => {
@@ -51,10 +52,12 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/movies" element={<Movies />} />
         <Route path="/movie/:movieId" element={<Moviedetails />} />
-        <Route path="/genres" element={<Genre />} />
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/admin" element={<Admin/>} />
-        <Route path="/stripe" element={<Stripe/>} />
+        <Route path="/wishlist" element={<WishList/>} />
+        <Route path="/success" element={<Success/>} />
+
+
 
       </Routes>
     </Router>

@@ -7,14 +7,12 @@ import {
   Container,
   Paper,
   CircularProgress,
-  MenuItem,
-  Snackbar,
-  Alert,
   Grid,
   useMediaQuery,
   useTheme,
-  Divider,
 } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addMovie, updateMovie } from "../../Utils/Api";
 
@@ -22,7 +20,7 @@ interface Movie {
   id?: number;
   title: string;
   genre: string;
-  rating: number;
+  rating: number | string;
   poster_url: string | File;
   banner_url: string | File;
   release_year: number;
@@ -49,7 +47,7 @@ const AdminPanel: React.FC = () => {
     id: undefined,
     title: "",
     genre: "",
-    rating: 0,
+    rating: "",
     poster_url: "",
     banner_url: "",
     release_year: new Date().getFullYear(),
@@ -62,15 +60,14 @@ const AdminPanel: React.FC = () => {
     banner_url?: string;
   }>({});
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success" as "success" | "error",
-  });
+  const [errors, setErrors] = useState<Partial<Record<keyof Movie, string>>>(
+    {}
+  );
 
   const isEditMode = !!movieId;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     if (isEditMode && movie) {
@@ -78,7 +75,7 @@ const AdminPanel: React.FC = () => {
         id: movie.id,
         title: movie.title || "",
         genre: movie.genre || "",
-        rating: movie.rating || 0,
+        rating: movie.rating || "",
         poster_url: movie.poster_url || "",
         banner_url: movie.banner_url || "",
         release_year: movie.release_year || new Date().getFullYear(),
@@ -95,13 +92,57 @@ const AdminPanel: React.FC = () => {
     }
   }, [isEditMode, movie, movieId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Record<keyof Movie, string>> = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = "Title is required";
+    }
+
+    if (!formData.genre) {
+      newErrors.genre = "Genre is required";
+    }
+
+    if (!formData.rating) {
+      newErrors.rating = "Rating is required";
+    } else {
+      const ratingNum = Number(formData.rating);
+      if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 10) {
+        newErrors.rating = "Rating must be between 1 and 10";
+      }
+    }
+
+    if (!formData.release_year) {
+      newErrors.release_year = "Release year is required";
+    } else if (
+      formData.release_year < 1900 ||
+      formData.release_year > currentYear
+    ) {
+      newErrors.release_year = `Year must be between 1900 and ${currentYear}`;
+    }
+
+    if (!formData.director.trim()) {
+      newErrors.director = "Director is required";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]:
         name === "rating" || name === "release_year" ? Number(value) : value,
     }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const handleImageChange = (
@@ -120,6 +161,11 @@ const AdminPanel: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -142,55 +188,59 @@ const AdminPanel: React.FC = () => {
 
       if (isEditMode && formData.id !== undefined) {
         await updateMovie(formData.id, data);
-        setSnackbar({
-          open: true,
-          message: "Movie updated successfully!",
-          severity: "success",
-        });
       } else {
         await addMovie(data);
-        setSnackbar({
-          open: true,
-          message: "Movie added successfully!",
-          severity: "success",
-        });
       }
 
       setTimeout(() => navigate("/movies"), 1500);
     } catch (err) {
       console.error(err);
-      setSnackbar({
-        open: true,
-        message: isEditMode
-          ? "Failed to update movie."
-          : "Failed to add movie.",
-        severity: "error",
-      });
     } finally {
       setLoading(false);
     }
   };
 
   const textFieldStyle = {
-    input: { color: "#fff" },
+    input: { color: "white" },
     textarea: { color: "#fff" },
     "& .MuiOutlinedInput-root": {
       "& fieldset": { borderColor: "gray" },
       "&:hover fieldset": { borderColor: "#fff" },
     },
-    "& .MuiInputLabel-root": { color: "gray" },
+    "& .MuiInputLabel-root": { color: "white" },
     "& .MuiInputLabel-root.Mui-focused": { color: "#fff" },
   };
 
   return (
-    <Container maxWidth={isMobile ? "sm" : "md"} sx={{ py: 3 }}>
+    <Container
+      maxWidth={isMobile ? "sm" : "md"}
+      sx={{ mt: 0, py: 0, backgroundColor: "black" }}
+    >
       <Paper
         elevation={3}
-        sx={{ p: 3, backgroundColor: "#1e1e1e", color: "#fff" }}
+        sx={{ p: 1, backgroundColor: "black", color: "#fff" }}
       >
-        <Typography variant="h5" textAlign="center" mb={2}>
-          {isEditMode ? "Edit Movie" : "Add New Movie"}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 2,
+            width: "100%",
+          }}
+        >
+          <IconButton
+            onClick={() => navigate("/movies")}
+            sx={{ color: "#fff", mr: 1 }}
+          >
+            <ArrowBack />
+          </IconButton>
+          <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+            <Typography variant="h5">
+              {isEditMode ? "Edit Movie" : "Add New Movie"}
+            </Typography>
+          </Box>
+        </Box>
 
         <Box
           component="form"
@@ -202,40 +252,65 @@ const AdminPanel: React.FC = () => {
             label="Title"
             value={formData.title}
             onChange={handleChange}
-            required
             fullWidth
             sx={textFieldStyle}
           />
-          <TextField
-            name="genre"
-            select
-            label="Genre"
-            value={formData.genre}
-            onChange={handleChange}
-            required
-            fullWidth
-            sx={textFieldStyle}
-          >
-            {genres.map((g) => (
-              <MenuItem key={g} value={g}>
-                {g}
-              </MenuItem>
-            ))}
-          </TextField>
+          {errors.title && (
+            <Typography color="error" variant="caption">
+              {errors.title}
+            </Typography>
+          )}
+
+          <Box>
+            <label
+              htmlFor="genre"
+              style={{ color: "#ccc", display: "block", marginBottom: 4 }}
+            >
+              Genre
+            </label>
+            <select
+              id="genre"
+              name="genre"
+              value={formData.genre}
+              onChange={handleChange}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "4px",
+                backgroundColor: "black",
+                color: "#fff",
+                border: "1px solid gray",
+              }}
+            >
+              <option value="">Select Genre</option>
+              {genres.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </Box>
+          {errors.genre && (
+            <Typography color="error" variant="caption">
+              {errors.genre}
+            </Typography>
+          )}
+
           <TextField
             name="rating"
-            label="Rating (0-10)"
+            label="Rating (1-10)"
             type="number"
-            inputProps={{ min: 0, max: 10, step: 0.1 }}
+            inputProps={{ min: 1, max: 10, step: 0.1 }}
             value={formData.rating}
             onChange={handleChange}
-            required
             fullWidth
             sx={textFieldStyle}
           />
-
-          <Divider sx={{ bgcolor: "#444" }} />
-
+          {errors.rating && (
+            <Typography color="error" variant="caption">
+              {errors.rating}
+            </Typography>
+          )}
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <Typography>Poster</Typography>
@@ -243,7 +318,11 @@ const AdminPanel: React.FC = () => {
                 component="label"
                 variant="outlined"
                 fullWidth
-                sx={{ color: "#fff", borderColor: "gray" }}
+                sx={{
+                  color: "#fff",
+                  borderColor: "gray",
+                  backgroundColor: "red",
+                }}
               >
                 Choose Poster
                 <input
@@ -283,7 +362,11 @@ const AdminPanel: React.FC = () => {
                 component="label"
                 variant="outlined"
                 fullWidth
-                sx={{ color: "#fff", borderColor: "gray" }}
+                sx={{
+                  color: "#fff",
+                  borderColor: "gray",
+                  backgroundColor: "red",
+                }}
               >
                 Choose Banner
                 <input
@@ -327,16 +410,27 @@ const AdminPanel: React.FC = () => {
             required
             fullWidth
             sx={textFieldStyle}
+            inputProps={{ min: 1900, max: currentYear }}
           />
+          {errors.release_year && (
+            <Typography color="error" variant="caption">
+              {errors.release_year}
+            </Typography>
+          )}
+
           <TextField
             name="director"
             label="Director"
             value={formData.director}
             onChange={handleChange}
-            required
             fullWidth
             sx={textFieldStyle}
           />
+          {errors.director && (
+            <Typography color="error" variant="caption">
+              {errors.director}
+            </Typography>
+          )}
 
           <TextField
             name="description"
@@ -344,17 +438,21 @@ const AdminPanel: React.FC = () => {
             value={formData.description}
             onChange={handleChange}
             multiline
-            rows={4}
-            required
+            rows={2}
             fullWidth
             sx={textFieldStyle}
           />
+          {errors.description && (
+            <Typography color="error" variant="caption">
+              {errors.description}
+            </Typography>
+          )}
 
           <Box
             sx={{
               display: "flex",
               gap: 2,
-              mt: 2,
+              mt: 1,
               flexDirection: isMobile ? "column" : "row",
             }}
           >
@@ -363,7 +461,7 @@ const AdminPanel: React.FC = () => {
               variant="contained"
               disabled={loading}
               fullWidth
-              sx={{ backgroundColor: "#333" }}
+              sx={{ backgroundColor: "red" }}
             >
               {loading ? (
                 <CircularProgress size={24} color="inherit" />
@@ -384,16 +482,6 @@ const AdminPanel: React.FC = () => {
           </Box>
         </Box>
       </Paper>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 };

@@ -280,10 +280,9 @@ const Movies: React.FC = () => {
                 height: { xs: "80vh", md: "65vh" },
                 bgcolor: "#2b2b2b",
                 color: "#fff",
-                // borderRadius: 2,
                 cursor: "pointer",
                 overflow: "hidden",
-                border:"none",
+                border: "none",
                 transition: "transform 0.2s",
                 "&:hover": { transform: "scale(1.02)" },
               }}
@@ -291,7 +290,6 @@ const Movies: React.FC = () => {
               {movie.premium && (
                 <Box
                   sx={{
-                    // height:"100%",
                     position: "absolute",
                     top: 8,
                     left: 8,
@@ -350,7 +348,6 @@ const Movies: React.FC = () => {
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
-                  // border: "1px solid white",
                 }}
               >
                 <CardMedia
@@ -366,7 +363,7 @@ const Movies: React.FC = () => {
                   sx={{
                     color: "white",
                     backgroundColor: "black",
-                    height: "45%",
+                    height: "40%",
                     py: 0.4,
                     px: 1,
                     overflow: "hidden",
@@ -378,19 +375,17 @@ const Movies: React.FC = () => {
                   <Typography variant="subtitle1" noWrap fontWeight="bold">
                     {movie.title}
                   </Typography>
-                  {/* <Typography variant="subtitle1" noWrap >
-                    {movie.description}
-                  </Typography> */}
-                  <Box sx={{ display: "flex", alignItems: "center", mt:1 ,}}>
+
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 0.1 }}>
                     <Typography variant="body2">
                       Rating {movie.rating}/10
                     </Typography>
                     <StarIcon sx={{ color: "yellow", fontSize: 18, ml: 0.5 }} />
                   </Box>
-                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                  <Typography variant="body2" sx={{ mt: 0.1 }}>
                     Year: {movie.release_year}
                   </Typography>
-                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                  <Typography variant="body2" sx={{ mt: 0.1 }}>
                     Director: {movie.director}
                   </Typography>
                 </CardContent>
@@ -400,7 +395,7 @@ const Movies: React.FC = () => {
         </Box>
       )}
 
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
         <Pagination
           count={totalPages}
           page={currentPage}

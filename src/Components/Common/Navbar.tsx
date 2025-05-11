@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaBars, FaTimes, FaBell } from "react-icons/fa";
-
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import {
@@ -12,40 +11,78 @@ import {
   Menu,
   MenuItem,
   Button,
+  Avatar,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
 } from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import LanguageIcon from "@mui/icons-material/Language";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import InfoIcon from "@mui/icons-material/Info";
+import { fetchUserDetails, updateProfileImage } from "../../Utils/Api"; // Import the API functions
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [userData, setUserData] = useState<{
-    name: string;
-    role: string;
-  } | null>(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [userData, setUserData] = useState({
+    name: "",
+    role: "",
+    profile_picture_url: "",
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(
+    "https://via.placeholder.com/40?text=User"
+  );
   const navigate = useNavigate();
-  const profileCardRef = useRef<HTMLDivElement>(null);
+  const profileCardRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
 
-    const userString = localStorage.getItem("user");
-    if (userString) {
+    const fetchUserData = async () => {
       try {
-        const user = JSON.parse(userString);
-        setUserData(user);
-      } catch (err) {
-        console.error("Invalid user data in localStorage");
+        const user = await fetchUserDetails();
+        setUserData(user.user);
+        if (user.user?.profile_picture_url) {
+          setPreview(user.user.profile_picture_url);
+        }
+
+        localStorage.setItem("user", JSON.stringify(user));
+      } catch (error) {
+        const userString = localStorage.getItem("user");
+        if (userString) {
+          try {
+            const user = JSON.parse(userString);
+            setUserData(user);
+            if (user.profileImage) {
+              setPreview(user.profileImage);
+            }
+          } catch (err) {
+            console.error("Invalid user data in localStorage");
+          }
+        }
       }
+    };
+
+    if (token) {
+      fetchUserData();
     }
 
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event) => {
       if (
         profileCardRef.current &&
-        !profileCardRef.current.contains(event.target as Node)
+        !profileCardRef.current.contains(event.target)
       ) {
         setShowProfile(false);
+        setIsEditing(false);
       }
     };
 
@@ -55,7 +92,7 @@ const Navbar = () => {
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
-  const toggleProfileCard = (event: React.MouseEvent<HTMLElement>) => {
+  const toggleProfileCard = (event) => {
     if (isLoggedIn) {
       setAnchorEl(event.currentTarget);
       setShowProfile((prev) => !prev);
@@ -78,18 +115,59 @@ const Navbar = () => {
   const handleMenuClose = () => {
     setAnchorEl(null);
     setShowProfile(false);
+    setIsEditing(false);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (image) {
+      try {
+        const response = await updateProfileImage(image);
+        const updatedUser = { ...userData, profileImage: response.imageUrl };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setUserData(updatedUser);
+        setIsEditing(false);
+      } catch (error) {
+        toast.error("Failed to update profile image.");
+      }
+    }
+  };
+  const handlecancel = async () => {
+    {
+      setIsEditing(false);
+      setImage(null);
+      console.log(userData);
+      setPreview(
+        userData?.profile_picture_url ||
+          "https://via.placeholder.com/40?text=User"
+      );
+    }
   };
 
   return (
     <>
-      <AppBar position="static" sx={{margin:"0", backgroundColor: "black", boxShadow: 3 }}>
+      <AppBar
+        position="static"
+        sx={{ margin: 0, backgroundColor: "black", boxShadow: 3 }}
+      >
         <Toolbar
           sx={{
             maxWidth: "1580px",
             width: "100%",
-            mx: { sx: "0", xs: "0", md: "3%", lg: "1%" },
+            mx: { xs: "0", md: "3%", lg: "1%" },
             display: "flex",
-            justifyContent: {xs:"space-evenly",sm:"space-between"},
+            justifyContent: { xs: "space-between", sm: "space-between" },
             gap: { xs: 0, sm: 2, md: 3, lg: 20 },
           }}
         >
@@ -97,11 +175,11 @@ const Navbar = () => {
             component={Link}
             to="/"
             sx={{
-              marginLeft:"0",
+              marginLeft: 0,
               textDecoration: "none",
               color: "red",
               fontWeight: "bold",
-              fontSize: { xs: "0.9rem", sm: "1.8rem", md: "1.8rem" },
+              fontSize: { xs: "0.9rem", sm: "1.2rem", md: "1.6rem" },
               fontFamily: "sans-serif",
             }}
           >
@@ -111,7 +189,7 @@ const Navbar = () => {
           <Box
             sx={{
               display: { xs: "none", sm: "flex" },
-              gap: { xs: 1, lg: 3 },
+              gap: { xs: 1, lg: 2 },
               fontFamily: "sans-serif",
               fontSize: { xs: "1rem", lg: "1.25rem" },
             }}
@@ -152,55 +230,55 @@ const Navbar = () => {
             >
               Subscription
             </Typography>
+            <Typography
+              component={Link}
+              to="/wishlist"
+              sx={{
+                textDecoration: "none",
+                color: "inherit",
+                fontWeight: "bold",
+                "&:hover": { color: "red" },
+              }}
+            >
+              WatchList
+            </Typography>
           </Box>
 
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: { xs: 0.1, sm: 2, md: 3, lg: 4 },
+              gap: { xs: 0.1, sm: 2, md: 3, lg: 5 },
               position: "relative",
-              right: "1%",
+              right: "0%",
               ml: { xs: "0%", sm: "0%", md: "10%", lg: "10%" },
             }}
           >
-            {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: { xs: 0.3, sm: 1 },
+              }}
+            >
+              <IconButton sx={{ color: "red" }}>
+                <FaBell size={20} />
+              </IconButton>
               <IconButton onClick={toggleProfileCard} sx={{ color: "white" }}>
-                <FaUserCircle size={25} />
+                <FaUserCircle size={20} />
               </IconButton>
               <Typography
                 variant="body2"
                 sx={{
                   color: "white",
-                  // fontWeight: "bold",
                   fontFamily: "sans-serif",
                   display: { xs: "none", sm: "block" },
                 }}
               >
                 {isLoggedIn ? userData?.name || "User" : "Guest"}
               </Typography>
-            </Box> */}
-            <Box sx={{ display: "flex", alignItems: "center", gap:{xs:0.3,sm:1} }}>
-  <IconButton sx={{ color: "red" }}>
-    <FaBell size={20} />
-  </IconButton>
-  <IconButton onClick={toggleProfileCard} sx={{ color: "white" }}>
-    <FaUserCircle size={20} />
-  </IconButton>
-  <Typography
-    variant="body2"
-    sx={{
-      color: "white",
-      fontFamily: "sans-serif",
-      display: { xs: "none", sm: "block" },
-    }}
-  >
-    {isLoggedIn ? userData?.name || "User" : "Guest"}
-  </Typography>
-</Box>
-
-
-            <Box sx={{ display: { xs: "block", sm: "none" } }}>
+            </Box>
+            <Box sx={{ display: { xs: "block", sm: "none", mr: 0 } }}>
               <IconButton onClick={toggleMenu} sx={{ color: "white" }}>
                 {isOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
               </IconButton>
@@ -211,45 +289,161 @@ const Navbar = () => {
               open={showProfile && isLoggedIn}
               onClose={handleMenuClose}
               ref={profileCardRef}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              PaperProps={{
+                sx: {
+                  backgroundColor: "#1e1e1e",
+                  color: "white",
+                  width: { xs: "80%", sm: "300px" },
+                  maxWidth: "100vw",
+                  borderRadius: 2,
+                  overflow: "visible",
+                  maxHeight: "100vh",
+                  boxShadow: 5,
+                  zIndex: 1400,
+                  mt: { xs: 3, sm: 1 },
+                  position: "absolute",
+                  right: { xs: "4px", sm: "4px" },
+                },
+              }}
             >
-              <MenuItem disabled sx={{ fontWeight: "bold" }}>
-                👤 Logged In
-              </MenuItem>
-
-              {userData?.role === "supervisor" && (
-                <MenuItem
-                  onClick={() => {
-                    setShowProfile(false);
-                    setAnchorEl(null);
-                    navigate("/admin");
-                  }}
-                >
-                  <Button variant="contained" color="primary" fullWidth>
-                    Add Movie
-                  </Button>
-                </MenuItem>
+              <Box
+                p={0.1}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+              >
+                <Box sx={{ position: "relative" }}>
+                  <Avatar
+                    src={preview}
+                    sx={{ bgcolor: "red", width: 40, height: 40 }}
+                  />
+                  {!isEditing && (
+                    <Button
+                      onClick={() => setIsEditing(true)}
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        color: "white",
+                        fontSize: "0.7rem",
+                        opacity: 0,
+                        "&:hover": { opacity: 1 },
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                </Box>
+                {isEditing ? (
+                  <Box sx={{ mt: 1, textAlign: "center" }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      style={{ fontSize: "0.8rem", marginBottom: "8px" }}
+                    />
+                    <Box
+                      sx={{ display: "flex", gap: 1, justifyContent: "center" }}
+                    >
+                      <Button
+                        onClick={handleSubmit}
+                        variant="contained"
+                        color="success"
+                        size="small"
+                      >
+                        Submit
+                      </Button>
+                      <Button
+                        onClick={() => handlecancel()}
+                        variant="contained"
+                        color="error"
+                        size="small"
+                      >
+                        Cancel
+                      </Button>
+                    </Box>
+                  </Box>
+                ) : (
+                  <>
+                    <Typography variant="body1" mt={0.2}>
+                      {userData?.name}
+                    </Typography>
+                    <Typography variant="caption" color="error">
+                      Role: {userData?.role}
+                    </Typography>
+                  </>
+                )}
+              </Box>
+              {!isEditing && (
+                <>
+                  <Divider sx={{ bgcolor: "#333" }} />
+                  <List>
+                    <ListItem button>
+                      <ListItemIcon sx={{ color: "white", mt: 0 }}>
+                        <PersonIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Profile" />
+                    </ListItem>
+                    <ListItem button>
+                      <ListItemIcon sx={{ color: "white", mt: 0 }}>
+                        <NotificationsIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Notifications" />
+                    </ListItem>
+                    <ListItem button>
+                      <ListItemIcon sx={{ color: "white", mt: 0 }}>
+                        <LanguageIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Language" />
+                    </ListItem>
+                    <ListItem button>
+                      <ListItemIcon sx={{ color: "white", mt: 0 }}>
+                        <HelpOutlineIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Help & Support" />
+                    </ListItem>
+                    <ListItem button>
+                      <ListItemIcon sx={{ color: "white", mt: 0 }}>
+                        <InfoIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="About" />
+                    </ListItem>
+                  </List>
+                  {userData?.role === "supervisor" && (
+                    <MenuItem
+                      onClick={() => {
+                        setShowProfile(false);
+                        setAnchorEl(null);
+                        navigate("/admin");
+                      }}
+                    >
+                      <Button variant="contained" color="primary" fullWidth>
+                        Add Movie
+                      </Button>
+                    </MenuItem>
+                  )}
+                  <MenuItem onClick={handleLogout} sx={{ mt: 0 }}>
+                    <Button variant="contained" color="error" fullWidth>
+                      Logout
+                    </Button>
+                  </MenuItem>
+                </>
               )}
-
-              <MenuItem onClick={handleLogout}>
-                <Button variant="contained" color="error" fullWidth>
-                  Logout
-                </Button>
-              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Overlay for outside click */}
       {isOpen && (
         <Box
           onClick={toggleMenu}
           sx={{
             position: "fixed",
             top: 0,
-            left: 0,
+            right: 2,
             width: "100vw",
             height: "100vh",
             backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -259,11 +453,10 @@ const Navbar = () => {
         />
       )}
 
-      {/* Sidebar for Mobile */}
       <Box
         sx={{
           position: "fixed",
-          top: "64px", // Adjust this based on your AppBar height
+          top: "64px",
           right: 0,
           width: "70%",
           backgroundColor: "black",
@@ -276,9 +469,8 @@ const Navbar = () => {
           px: 3,
           py: 4,
           borderRadius: "0 0 0 10px",
+          height: "90vh",
           overflowY: "auto",
-          height: "auto",
-          maxHeight: "90vh",
         }}
       >
         <Typography
@@ -309,7 +501,7 @@ const Navbar = () => {
         </Typography>
         <Typography
           component={Link}
-          to="/genres"
+          to="/subscription"
           onClick={toggleMenu}
           sx={{
             textDecoration: "none",
@@ -318,7 +510,7 @@ const Navbar = () => {
             "&:hover": { color: "red", textDecoration: "underline" },
           }}
         >
-          Genres
+          Subscription
         </Typography>
         <Typography
           component={Link}

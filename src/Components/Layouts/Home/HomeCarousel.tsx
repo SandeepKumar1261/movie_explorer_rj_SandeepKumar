@@ -8,7 +8,6 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
-  Skeleton,
 } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -16,7 +15,7 @@ import StarIcon from "@mui/icons-material/Star";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { deleteMovie, fetchMoviesAll } from "../../../Utils/Api";
+import { deleteMovie } from "../../../Utils/Api";
 import { useNavigate } from "react-router-dom";
 
 interface Movie {
@@ -24,24 +23,25 @@ interface Movie {
   title: string;
   genre: string;
   rating: number;
-  poster_url?: string;
-  release_year: number;
+  release_year: number | string;
   director: string;
+  description?: string;
+  poster_url?: string;
+  banner_url?: string;
+  duration?: number;
   premium?: boolean;
 }
 
-interface MovieCarouselProps {
+interface HomeCarouselProps {
   genre: string;
+  movies: Movie[];
 }
 
-const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [scrollX, setScrollX] = useState(0);
-  const [maxScroll, setMaxScroll] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+const HomeCarousel: React.FC<HomeCarouselProps> = ({ genre, movies }) => {
+  const [scrollX, setScrollX] = useState<number>(0);
+  const [maxScroll, setMaxScroll] = useState<number>(0);
+  const [touchStart, setTouchStart] = useState<number>(0);
+  const [touchEnd, setTouchEnd] = useState<number>(0);
   const [isSupervisor, setIsSupervisor] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,8 +53,9 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
   const isMdScreen = useMediaQuery(theme.breakpoints.between("md", "lg"));
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setIsSupervisor(user.role === "supervisor");
+    const user: { role?: string } = JSON.parse(localStorage.getItem("user") || "{}");
+    console.log(user.user);
+    setIsSupervisor(user.user.role === "supervisor");
   }, []);
 
   const getCardWidth = (): number => {
@@ -64,62 +65,9 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
     return 220;
   };
 
-  const CARD_WIDTH = getCardWidth();
-  const CARD_GAP = isXsScreen ? 8 : 16;
-  const SCROLL_AMOUNT = CARD_WIDTH + CARD_GAP;
-
-  useEffect(() => {
-    const getMovies = async () => {
-      try {
-        setLoading(true);
-        let allMovies: any[] = [];
-        let page = 1;
-        let totalPages = Infinity;
-
-        while (allMovies.length < 10 && page <= totalPages) {
-          const { movies, pagination } = await fetchMoviesAll(page);
-          totalPages = pagination.totalPages;
-
-          let filtered: any[] = [];
-
-          if (genre === "Top Rated") {
-            filtered = movies.filter((movie) => movie.rating >= 8).sort((a, b) => b.rating - a.rating);
-
-          } else if (genre === "Related Movies") {
-            const currentGenre = localStorage.getItem("genre");
-            let genres =
-              currentGenre
-                ?.toLowerCase()
-                .split(",")
-                .map((g) => g.trim()) || [];
-            filtered = movies.filter((movie) =>
-              genres.some((g) => movie.genre.toLowerCase().includes(g))
-            );
-          } else {
-            filtered = movies
-              .filter((movie) => movie.release_year >= 2016)
-              .sort((a, b) => b.release_year - a.release_year);
-          }
-
-          allMovies = [...allMovies, ...filtered];
-          page++;
-        }
-        if (genre === "Latest Released") {
-          allMovies = allMovies.sort((a, b) => b.release_year - a.release_year);
-        }
-        // console.log(allMovies);
-        setMovies(allMovies.slice(0, 10));
-        setError(null);
-      } catch (err) {
-        // console.error(err);
-        setError("Failed to load movies.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getMovies();
-  }, [genre]);
+  const CARD_WIDTH: number = getCardWidth();
+  const CARD_GAP: number = isXsScreen ? 8 : 16;
+  const SCROLL_AMOUNT: number = CARD_WIDTH + CARD_GAP;
 
   useEffect(() => {
     const updateMaxScroll = () => {
@@ -141,7 +89,7 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [movies.length, isXsScreen]);
+  }, [movies.length, isXsScreen, maxScroll]);
 
   const handleScrollLeft = () => {
     setScrollX((prev) => Math.max(prev - SCROLL_AMOUNT, 0));
@@ -181,56 +129,13 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
 
   const handleDeleteMovie = async (e: React.MouseEvent, movieId: number) => {
     e.stopPropagation();
-    await deleteMovie(movieId);
     if (window.confirm("Are you sure you want to delete this movie?")) {
-      // console.log("Delete movie with ID:", movieId);
-      setMovies((prevMovies) =>
-        prevMovies.filter((movie) => movie.id !== movieId)
-      );
+      await deleteMovie(movieId);
     }
   };
 
   const isAtStart = scrollX <= 0;
   const isAtEnd = scrollX >= maxScroll - 15;
-
-  const renderSkeletons = () => {
-    return Array.from(new Array(5)).map((_, index) => (
-      <Card
-        key={index}
-        sx={{
-          width: CARD_WIDTH,
-          bgcolor: "#2b2b2b",
-          borderRadius: 2,
-          overflow: "hidden",
-          flexShrink: 0,
-        }}
-      >
-        <Skeleton
-          variant="rectangular"
-          height={isXsScreen ? 200 : 250}
-          animation="wave"
-          sx={{ bgcolor: "rgba(255,255,255,0.1)" }}
-        />
-        <CardContent>
-          <Skeleton
-            variant="text"
-            width="80%"
-            sx={{ bgcolor: "rgba(255,255,255,0.1)" }}
-          />
-          <Skeleton
-            variant="text"
-            width="50%"
-            sx={{ bgcolor: "rgba(255,255,255,0.1)", mt: 1 }}
-          />
-          <Skeleton
-            variant="text"
-            width="70%"
-            sx={{ bgcolor: "rgba(255,255,255,0.1)", mt: 1 }}
-          />
-        </CardContent>
-      </Card>
-    ));
-  };
 
   return (
     <Box
@@ -275,36 +180,7 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
         </Typography>
       </Box>
 
-      {loading ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            py: { xs: 3, md: 6 },
-            minHeight: isXsScreen ? 280 : 350,
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              overflowX: "hidden",
-              gap: 2,
-              pl: { xs: 2, sm: 4, md: 6 },
-            }}
-          >
-            {renderSkeletons()}
-          </Box>
-        </Box>
-      ) : error ? (
-        <Typography
-          color="error"
-          align="center"
-          sx={{ py: { xs: 3, md: 6 }, px: 2 }}
-        >
-          {error}
-        </Typography>
-      ) : movies.length === 0 ? (
+      {movies.length === 0 ? (
         <Typography
           color="white"
           align="center"
@@ -354,7 +230,7 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
               pb: 1,
             }}
           >
-            {movies.map((movie) => (
+            {movies.map((movie: Movie) => (
               <Card
                 key={movie.id}
                 onClick={() => handleCardClick(movie.id)}
@@ -367,7 +243,6 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
                   flexShrink: 0,
                   cursor: "pointer",
                   position: "relative",
-                  // cons,
                 }}
               >
                 {isSupervisor && (
@@ -383,7 +258,7 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
                   >
                     <IconButton
                       size="small"
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.stopPropagation();
                         handleEditClick(movie);
                       }}
@@ -402,7 +277,7 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
                     </IconButton>
                     <IconButton
                       size="small"
-                      onClick={(e) => handleDeleteMovie(e, movie.id)}
+                      onClick={(e: React.MouseEvent) => handleDeleteMovie(e, movie.id)}
                       sx={{
                         bgcolor: "rgba(0,0,0,0.7)",
                         color: "red",
@@ -501,4 +376,5 @@ const HomeCarousel: React.FC<MovieCarouselProps> = ({ genre }) => {
     </Box>
   );
 };
+
 export default HomeCarousel;

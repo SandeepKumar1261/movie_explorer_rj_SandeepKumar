@@ -1,18 +1,18 @@
 import React, { Component } from "react";
 import Navbar from "../Components/Common/Navbar";
 import Footer from "../Components/Common/Footer";
-import SubscriptionPlans from "../Components/Layouts/Subscription/SubscriptionPlans";
+import WishListPage from "../Components/Layouts/WishList/WishList";
 
-class Subscription extends Component {
+class WishList extends Component {
   render() {
     return (
       <>
         <Navbar />
-        <SubscriptionPlans />
+        <WishListPage/>
         <Footer />
       </>
     );
   }
 }
 
-export default Subscription;
+export default WishList;

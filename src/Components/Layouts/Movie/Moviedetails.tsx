@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { fetchMovieDetails } from "../../../Utils/Api";
+import React, { useState } from "react";
 import alterImage from "../../../assets/FightClub.jpeg";
 import {
   Grid,
@@ -8,48 +6,58 @@ import {
   Button,
   Chip,
   Box,
-  CircularProgress,
-  Rating,
   useMediaQuery,
   useTheme,
   Container,
+  CircularProgress,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
+import { toggleWishList } from "../../../Utils/Api"; // adjust path
 
 interface Movie {
+  id: number;
   title: string;
-  director?: string;
-  rating?: number;
-  genre?: string;
-  release_year?: string | Date;
+  genre: string;
+  rating: number;
+  release_year: number | string;
+  director: string;
   description?: string;
-  duration?: number;
   poster_url?: string;
   banner_url?: string;
+  duration?: number;
+  premium?: boolean;
+  inWatchlist?: boolean; 
 }
 
-const MovieDetails: React.FC = () => {
-  const { movieId } = useParams<{ movieId: string }>();
-  const [movie, setMovie] = useState<Movie | null>(null);
+interface MovieDetailsProps {
+  movie: Movie | null;
+}
+
+const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  useEffect(() => {
-    const getMovieDetails = async () => {
-      try {
-        console.log(movieId);
-        const data = await fetchMovieDetails(movieId);
-        console.log(data);
-        setMovie(data);
-      } catch (error) {
-        console.error("Error fetching movie details:", error);
-      }
-    };
+  const [inWatchlist, setInWatchlist] = useState(movie?.inWatchlist || false);
+  const [loading, setLoading] = useState(false);
 
-    getMovieDetails();
-  }, [movieId]);
+  const handleToggleWishlist = async () => {
+    if (!movie) return;
+    const token=localStorage.getItem("token");
+    if(!token){
+      return;
+    }
+    try {
+      setLoading(true);
+      await toggleWishList(movie.id, token);
+      setInWatchlist((prev) => !prev);
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (!movie)
+  if (!movie) {
     return (
       <Box
         sx={{
@@ -61,15 +69,13 @@ const MovieDetails: React.FC = () => {
           minHeight: "80vh",
         }}
       >
-        <CircularProgress color="inherit" />
+        <Typography color="white">No movie data available.</Typography>
       </Box>
     );
+  }
 
   return (
-    <Container
-      maxWidth="xl"
-      sx={{ p: { xs: 1, sm: 1, md: 2 }, bgcolor: "black" }}
-    >
+    <Container maxWidth="xl" sx={{ p: { xs: 1, sm: 1, md: 2 }, bgcolor: "black" }}>
       <Box
         sx={{
           display: "flex",
@@ -135,25 +141,23 @@ const MovieDetails: React.FC = () => {
                 justifyContent: "center",
               }}
             >
-              {["Brad Pitt", "Edward Norton", "Helena Bonham Carter"].map(
-                (actor, index) => (
-                  <Chip
-                    key={index}
-                    label={actor}
-                    size={isMobile ? "medium" : "medium"}
-                    sx={{
-                      bgcolor: "#374151",
-                      color: "white",
-                      mb: 0.3,
-                      py: 0.5,
-                      px: 0.5,
-                      borderRadius: "16px",
-                      fontWeight: "medium",
-                      "&:hover": { bgcolor: "#4B5563" },
-                    }}
-                  />
-                )
-              )}
+              {["Brad Pitt", "Edward Norton", "Helena Bonham Carter"].map((actor: string, index: number) => (
+                <Chip
+                  key={index}
+                  label={actor}
+                  size={isMobile ? "medium" : "medium"}
+                  sx={{
+                    bgcolor: "#374151",
+                    color: "white",
+                    mb: 0.3,
+                    py: 0.5,
+                    px: 0.5,
+                    borderRadius: "16px",
+                    fontWeight: "medium",
+                    "&:hover": { bgcolor: "#4B5563" },
+                  }}
+                />
+              ))}
             </Box>
           </Box>
         </Box>
@@ -206,22 +210,14 @@ const MovieDetails: React.FC = () => {
               }}
             >
               <Typography fontWeight="medium">Rating:</Typography>
-
-              {/* {movie.rating ? ( */}
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                    
-                    {/* value={movie.rating / 2} */}
-                    <Typography>{movie.rating}/10   </Typography><StarIcon sx={{ color: "yellow", fontSize: 18, ml: 0.5 }} />
-                  {/* <Rating
-                    readOnly
-                    size={isMobile ? "small" : "medium"}
-                    icon={<StarIcon sx={{ color: "#FFD700" }} />}
-                    emptyIcon={<StarIcon sx={{ color: "grey.500" }} />}
-                  /> */}
-                </Box>
-              {/* ) : (
-                <Typography>N/A</Typography>
-              )} */}
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography>
+                  {movie.rating ? `${movie.rating}/10` : "N/A"}
+                </Typography>
+                {movie.rating && (
+                  <StarIcon sx={{ color: "yellow", fontSize: 18, ml: 0.5 }} />
+                )}
+              </Box>
             </Box>
 
             <Typography sx={{ textAlign: { xs: "center", sm: "left" } }}>
@@ -231,10 +227,7 @@ const MovieDetails: React.FC = () => {
 
             <Typography sx={{ textAlign: { xs: "center", sm: "left" } }}>
               <span style={{ fontWeight: "medium" }}>Year Released:</span>{" "}
-              {movie.release_year
-                ? movie.release_year.toString()
-                : "N/A"
-                }
+              {movie.release_year ? movie.release_year.toString() : "N/A"}
             </Typography>
           </Box>
 
@@ -248,7 +241,7 @@ const MovieDetails: React.FC = () => {
               px: { xs: 2, sm: 0 },
             }}
           >
-            {movie.description}
+            {movie.description || "No description available."}
           </Typography>
 
           <Box
@@ -273,21 +266,29 @@ const MovieDetails: React.FC = () => {
             }}
           >
             <Button
+              onClick={handleToggleWishlist}
               variant="contained"
               size="large"
+              disabled={loading}
               sx={{
                 fontSize: { xs: "0.7rem", sm: "1rem" },
                 px: { xs: 2, sm: 2 },
                 py: { xs: 1, sm: 1 },
-                bgcolor: "#2563EB",
+                bgcolor: inWatchlist ? "#DC2626" : "#2563EB",
                 borderRadius: "8px",
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
-                "&:hover": { bgcolor: "#1E40AF" },
+                "&:hover": {
+                  bgcolor: inWatchlist ? "#B91C1C" : "#1E40AF",
+                },
               }}
             >
-              ADD TO WISHLIST
+              {loading
+                ? <CircularProgress size={20} sx={{ color: "white" }} />
+                : inWatchlist
+                  ? "Remove from Watchlist"
+                  : "Add to Watchlist"}
             </Button>
           </Box>
         </Box>

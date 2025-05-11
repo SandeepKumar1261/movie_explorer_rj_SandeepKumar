@@ -1,12 +1,94 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import MainCarousel from "./MainCarousel";
 import HomeCarousel from "./HomeCarousel";
+import { fetchMovies, fetchMoviesAll } from "../../../Utils/Api";
+import { Box, CircularProgress } from "@mui/material";
+
+interface Movie {
+  id: number;
+  title: string;
+  genre: string;
+  rating: number;
+  release_year: number | string;
+  director: string;
+  description?: string;
+  poster_url?: string;
+  banner_url?: string;
+  duration?: number;
+  premium?: boolean;
+}
+
 const MovieContainer = () => {
+  const [mainMovies, setMainMovies] = useState<Movie[]>([]);
+  const [topRatedMovies, setTopRatedMovies] = useState<Movie[]>([]);
+  const [latestMovies, setLatestMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        setLoading(true);
+        const mainData: Movie[] = await fetchMovies();
+
+        let allMovies: Movie[] = [];
+        let page = 1;
+        let totalPages = Infinity;
+        while (allMovies.length < 20 && page <= totalPages) {
+          const {
+            movies,
+            pagination,
+          }: { movies: Movie[]; pagination: { totalPages: number } } =
+            await fetchMoviesAll(page);
+          allMovies = [...allMovies, ...movies];
+          totalPages = pagination.totalPages;
+          page++;
+        }
+
+        const topRated = allMovies
+          .filter((movie) => movie.rating >= 8)
+          .sort((a, b) => b.rating - a.rating)
+          .slice(0, 10);
+
+        const latest = allMovies
+          .filter((movie) => Number(movie.release_year) >= 2016)
+          .sort((a, b) => Number(b.release_year) - Number(a.release_year))
+          .slice(0, 10);
+
+        setMainMovies(mainData);
+        setTopRatedMovies(topRated);
+        setLatestMovies(latest);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+          bgcolor: "black",
+          color: "white",
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Box>
+    );
+  }
+
   return (
     <>
-    <MainCarousel/>
-    <HomeCarousel genre={"Top Rated"}/>
-    <HomeCarousel genre={"Latest Released"}/>
+      <MainCarousel movies={mainMovies} />
+      <HomeCarousel genre="Top Rated" movies={topRatedMovies} />
+      <HomeCarousel genre="Latest Released" movies={latestMovies} />
     </>
   );
 };

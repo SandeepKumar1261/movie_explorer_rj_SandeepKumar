@@ -10,7 +10,7 @@ const Footer = () => {
         width: "100%",
         backgroundColor: "black",
         color: "white",
-        py: 8,
+        py: 2,
         px: 2,
       }}
     >
@@ -42,7 +42,7 @@ const Footer = () => {
                 Home
               </MuiLink>
               <MuiLink
-                href="/genres"
+                href="/movies"
                 underline="hover"
                 sx={{
                   color: "gray",
@@ -61,7 +61,18 @@ const Footer = () => {
                   fontSize: "1.2rem",
                 }}
               >
-                Contact
+                Subscription
+              </MuiLink>
+              <MuiLink
+                href="/wishlist"
+                underline="hover"
+                sx={{
+                  color: "gray",
+                  "&:hover": { color: "red" },
+                  fontSize: "1.2rem",
+                }}
+              >
+                WatchList
               </MuiLink>
             </Box>
           </Grid>
@@ -106,11 +117,11 @@ const Footer = () => {
           </Grid>
         </Grid>
 
-        <Divider sx={{ my: 5, borderColor: "gray" }} />
+        <Divider sx={{ my: 3, borderColor: "gray" }} />
         <Typography
           variant="body2"
           align="center"
-          sx={{ color: "gray", fontSize: "1.2rem" }}
+          sx={{ color: "gray", fontSize: "1.2rem", mb:0}}
         >
           © {new Date().getFullYear()} MovieExplorer. All rights reserved.
         </Typography>
