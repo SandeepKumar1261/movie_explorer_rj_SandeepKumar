@@ -5,3 +5,14 @@ html,body{
   background-color: black;
   overflow-x: hidden;
 }
+.custom-toast {
+  background-color: #1e1e2f !important;
+  color: white !important;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.custom-toast-body {
+  font-size: 15px;
+  font-weight: 500;
+}

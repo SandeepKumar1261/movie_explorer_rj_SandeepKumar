@@ -16,28 +16,10 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useNavigate } from 'react-router-dom';
 import InfoIcon from '@mui/icons-material/Info';
-
-
-interface Movie {
-  id: number;
-  title: string;
-  genre: string;
-  rating: number;
-  release_year: number | string;
-  director: string;
-  description?: string;
-  poster_url?: string;
-  banner_url?: string;
-  duration?: number;
-  premium?: boolean;
-}
-
-interface MainCarouselProps {
-  movies: Movie[];
-}
+import { Movie, MainCarouselProps } from '../../../types/MainCarousel';
 
 const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -60,8 +42,9 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
     setCurrentIndex((prevIndex) =>
       prevIndex === movies.length - 1 ? 0 : prevIndex + 1
     );
-  }
-  const handleMovieDetailsClick = (movieId) => {
+  };
+
+  const handleMovieDetailsClick = (movieId: number) => {
     navigate(`/movie/${movieId}`);
   };
 
@@ -128,7 +111,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
           zIndex: 2,
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
-          alignItems: "center{JsTHeMe}",
+          alignItems: "center",
           justifyContent: "space-between",
           height: "100%",
           py: { xs: 4, sm: 5, md: 6 },
@@ -190,13 +173,13 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
             <Button
               variant="contained"
               color="primary"
-              endIcon={<InfoIcon></InfoIcon>}
+              endIcon={<InfoIcon />}
               sx={{
                 fontSize: { xs: 1, md: 3 },
                 px: { xs: 2, md: 3 },
                 py: { xs: 1, md: 1.5 },
               }}
-              onClick={()=>{handleMovieDetailsClick(currentMovie.id)}}
+              onClick={() => handleMovieDetailsClick(currentMovie.id)}
             >
               More Info
             </Button>
@@ -209,7 +192,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
                 py: { xs: 1, md: 1.5 },
               }}
             >
-              + Watchlist
+              + WishList
             </Button>
           </Stack>
         </Box>
@@ -217,7 +200,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
         <Card
           sx={{
             width: { xs: "85%", sm: "60%", md: 300 },
-            height: { xs: "auto",sm:"80%", md: "100%" },
+            height: { xs: "auto", sm: "80%", md: "100%" },
             mt: { xs: 4, md: 0 },
             mb: { xs: 4, md: 0 },
             boxShadow: 6,
@@ -225,7 +208,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
         >
           <CardMedia
             component="img"
-            image={ currentMovie.banner_url}
+            image={currentMovie.banner_url}
             alt={currentMovie.title}
             sx={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
@@ -234,6 +217,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
 
       <IconButton
         onClick={prevSlide}
+        aria-label="previous-slide"
         sx={{
           position: "absolute",
           left: { xs: 5, md: 20 },
@@ -251,6 +235,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
 
       <IconButton
         onClick={nextSlide}
+        aria-label="next-slide"
         sx={{
           position: "absolute",
           right: { xs: 5, md: 20 },
@@ -282,6 +267,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
           <Box
             key={idx}
             onClick={() => setCurrentIndex(idx)}
+            data-testid={`pagination-dot-${idx}`}
             sx={{
               width: 8,
               height: 8,

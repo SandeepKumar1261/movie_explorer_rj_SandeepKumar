@@ -1,6 +1,7 @@
 import React from "react";
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
-import { Box, Typography, Grid, Link as MuiLink, Divider } from "@mui/material";
+import { Box, Typography, Link as MuiLink, Divider } from "@mui/material";
+import Grid from '@mui/material/Grid'; 
 
 const Footer = () => {
   return (
@@ -16,7 +17,7 @@ const Footer = () => {
     >
       <Box sx={{ maxWidth: "1300px", mx: "auto" }}>
         <Grid container spacing={{ xs: 2, sm: 4, md: 12, lg: 18, xl: 20 }}>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
               MovieExplorer
             </Typography>
@@ -25,7 +26,7 @@ const Footer = () => {
               next.
             </Typography>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
               Quick Links
             </Typography>
@@ -36,7 +37,7 @@ const Footer = () => {
                 sx={{
                   color: "gray",
                   "&:hover": { color: "red" },
-                  fontSize: "1.2rem",
+                  fontSize: "1rem",
                 }}
               >
                 Home
@@ -47,7 +48,7 @@ const Footer = () => {
                 sx={{
                   color: "gray",
                   "&:hover": { color: "red" },
-                  fontSize: "1.2rem",
+                  fontSize: "1rem",
                 }}
               >
                 Genre
@@ -58,7 +59,7 @@ const Footer = () => {
                 sx={{
                   color: "gray",
                   "&:hover": { color: "red" },
-                  fontSize: "1.2rem",
+                  fontSize: "1rem",
                 }}
               >
                 Subscription
@@ -69,15 +70,15 @@ const Footer = () => {
                 sx={{
                   color: "gray",
                   "&:hover": { color: "red" },
-                  fontSize: "1.2rem",
+                  fontSize: "1rem",
                 }}
               >
-                WatchList
+                WishList
               </MuiLink>
             </Box>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
               Follow Us
             </Typography>
@@ -121,7 +122,7 @@ const Footer = () => {
         <Typography
           variant="body2"
           align="center"
-          sx={{ color: "gray", fontSize: "1.2rem", mb:0}}
+          sx={{ color: "gray", fontSize: "1.2rem", mb: 0 }}
         >
           © {new Date().getFullYear()} MovieExplorer. All rights reserved.
         </Typography>

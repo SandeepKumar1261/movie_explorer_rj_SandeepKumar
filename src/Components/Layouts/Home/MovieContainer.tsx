@@ -3,20 +3,8 @@ import MainCarousel from "./MainCarousel";
 import HomeCarousel from "./HomeCarousel";
 import { fetchMovies, fetchMoviesAll } from "../../../Utils/Api";
 import { Box, CircularProgress } from "@mui/material";
+import { Movie, MoviesResponse } from '../../../types/MainCarousel';
 
-interface Movie {
-  id: number;
-  title: string;
-  genre: string;
-  rating: number;
-  release_year: number | string;
-  director: string;
-  description?: string;
-  poster_url?: string;
-  banner_url?: string;
-  duration?: number;
-  premium?: boolean;
-}
 
 const MovieContainer = () => {
   const [mainMovies, setMainMovies] = useState<Movie[]>([]);
@@ -34,11 +22,7 @@ const MovieContainer = () => {
         let page = 1;
         let totalPages = Infinity;
         while (allMovies.length < 20 && page <= totalPages) {
-          const {
-            movies,
-            pagination,
-          }: { movies: Movie[]; pagination: { totalPages: number } } =
-            await fetchMoviesAll(page);
+          const { movies, pagination }: MoviesResponse = await fetchMoviesAll(page);
           allMovies = [...allMovies, ...movies];
           totalPages = pagination.totalPages;
           page++;

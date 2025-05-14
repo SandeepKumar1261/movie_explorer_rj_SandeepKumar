@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
 import {
   TextField,
   Button,
@@ -12,7 +11,9 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { loginUser } from "../../../Utils/Api.ts";
+import { loginUser } from "../../../Utils/Api";
+import { toast } from "react-toastify";
+
 
 const Loginform: React.FC = () => {
   const navigate = useNavigate();
@@ -44,6 +45,9 @@ const Loginform: React.FC = () => {
       setPasswordError("Password is required");
       hasError = true;
     }
+    if(!email){
+      return;
+    }
 
     if (!validateEmail(email)) {
       setEmailError("Not a valid email");
@@ -62,7 +66,6 @@ const Loginform: React.FC = () => {
       localStorage.setItem("token", response.token);
       navigate("/");
     } catch (err: any) {
-      console.log(err.response.data.error);
       setLoginError(err.response.data.error);
     } finally {
       setLoading(false);
@@ -80,17 +83,7 @@ const Loginform: React.FC = () => {
         py: 4,
       }}
     >
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="dark"
-        style={{ top: "20px" }}
-      />
+
       <Container maxWidth="lg">
         <Box
           sx={{
@@ -188,6 +181,7 @@ const Loginform: React.FC = () => {
                         <IconButton
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
+                           aria-label={showPassword ? "hide password" : "show password"}
                           sx={{ color: "white" }}
                         >
                           {showPassword ? <VisibilityOff /> : <Visibility />}

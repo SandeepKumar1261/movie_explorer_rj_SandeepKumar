@@ -23,7 +23,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import LanguageIcon from "@mui/icons-material/Language";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoIcon from "@mui/icons-material/Info";
-import { fetchUserDetails, updateProfileImage } from "../../Utils/Api"; // Import the API functions
+import { fetchUserDetails, updateProfileImage } from "../../Utils/Api";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -97,12 +97,13 @@ const Navbar = () => {
       setAnchorEl(event.currentTarget);
       setShowProfile((prev) => !prev);
     } else {
-      toast.success("Please log In");
+      toast.error("Please log In");
       navigate("/login");
     }
   };
 
   const handleLogout = () => {
+    localStorage.clear();
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setIsLoggedIn(false);
@@ -143,16 +144,14 @@ const Navbar = () => {
       }
     }
   };
-  const handlecancel = async () => {
-    {
-      setIsEditing(false);
-      setImage(null);
-      console.log(userData);
-      setPreview(
-        userData?.profile_picture_url ||
-          "https://via.placeholder.com/40?text=User"
-      );
-    }
+
+  const handlecancel = () => {
+    setIsEditing(false);
+    setImage(null);
+    setPreview(
+      userData?.profile_picture_url ||
+        "https://via.placeholder.com/40?text=User"
+    );
   };
 
   return (
@@ -240,7 +239,7 @@ const Navbar = () => {
                 "&:hover": { color: "red" },
               }}
             >
-              WatchList
+              WishList
             </Typography>
           </Box>
 
@@ -357,7 +356,7 @@ const Navbar = () => {
                         Submit
                       </Button>
                       <Button
-                        onClick={() => handlecancel()}
+                        onClick={handlecancel}
                         variant="contained"
                         color="error"
                         size="small"
@@ -367,21 +366,28 @@ const Navbar = () => {
                     </Box>
                   </Box>
                 ) : (
-                  <>
+                  <Box sx={{ textAlign: "center" }}>
                     <Typography variant="body1" mt={0.2}>
                       {userData?.name}
                     </Typography>
                     <Typography variant="caption" color="error">
                       Role: {userData?.role}
                     </Typography>
-                  </>
+                  </Box>
                 )}
               </Box>
               {!isEditing && (
-                <>
+                <Box>
                   <Divider sx={{ bgcolor: "#333" }} />
                   <List>
-                    <ListItem button>
+                    <ListItem
+                      button
+                      onClick={() => {
+                        setShowProfile(false);
+                        setAnchorEl(null);
+                        navigate("/dashboard");
+                      }}
+                    >
                       <ListItemIcon sx={{ color: "white", mt: 0 }}>
                         <PersonIcon />
                       </ListItemIcon>
@@ -426,11 +432,11 @@ const Navbar = () => {
                     </MenuItem>
                   )}
                   <MenuItem onClick={handleLogout} sx={{ mt: 0 }}>
-                    <Button variant="contained" color="error" fullWidth>
+                    <Button variant="contained" fullWidth sx={{color:"white",backgroundColor:"red"}}>
                       Logout
                     </Button>
                   </MenuItem>
-                </>
+                </Box>
               )}
             </Menu>
           </Box>

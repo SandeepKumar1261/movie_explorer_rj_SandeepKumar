@@ -1,32 +1,37 @@
-import axios from "axios";
-const API_URL = "https://movie-explorer-ror-varun.onrender.com/api/v1";
-export const loginUser = async (email, password) => {
+import axios,{AxiosResponse} from "axios";
+import { SubscriptionStatus, ApiError } from "../types/Api"
+import { ApiErrorResponse } from "../types/Api";
+const API_URL = import.meta.env.VITE_API_URL;
+
+export const loginUser = async (email:string, password:string) => {
   const response = await axios.post(`${API_URL}/login`, {
     email,
     password,
   });
   localStorage.setItem("user", JSON.stringify(response.data.user));
+  window.location.reload();
   return response.data;
 };
-export const signupUser = async (user) => {
+export const signupUser = async (user: { [key: string]: any }) => {
   const response = await axios.post(`${API_URL}/signup`, { user });
   return response.data;
 };
 export const fetchMovies = async () => {
+  console.log(API_URL+" ali url");
   const response = await axios.get(`${API_URL}/movies`);
   return response.data.movies;
 };
-export const fetchMovieDetails = async (movieId) => {
+export const fetchMovieDetails = async (id:number) => {
   const token = localStorage.getItem("token");
 
-  const response = await axios.get(`${API_URL}/movies/${movieId}`,
+  const response = await axios.get(`${API_URL}/movies/${id}`,
     {headers: {
       "Content-Type": "multipart/form-data",
       Authorization: `Bearer ${token}`,
     }}
   );
   console.log(response);
-  const data = await response.json();
+  let data=response.data;
   localStorage.setItem("genre", data.genre);
   return data;
 };
@@ -56,7 +61,7 @@ export const fetchMoviesAlll = async (
       search,
       rating: rating.toString(),
     });
-    const response = await fetch(`${API_URL}/movies?${params.toString()}`);
+    const response = await fetch(`${API_URL}/movies/search?${params.toString()}`);
     return await response.json();
   } catch (err) {
     return null;
@@ -64,7 +69,6 @@ export const fetchMoviesAlll = async (
 };
 export const addMovie = async (data: FormData) => {
   const token = localStorage.getItem("token");
-  console.log(token);
   return axios.post(`${API_URL}/movies`, data, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -108,17 +112,15 @@ export const updateMovie = (id: number, data: FormData) => {
   });
 };
 
-interface ApiErrorResponse {
-  message?: string;
-}
 
 export const sendTokenToBackend = async (token: string): Promise<any> => {
   try {
-    // const token = localStorage.getItem("token");
-    if (!token) {
+   if (!token) {
       throw new Error("No user data found. User might not be logged in.");
     }
-    if (!token) {
+    const tokenn = localStorage.getItem("token");
+
+    if (!tokenn) {
       throw new Error("No authentication token found in user data.");
     }
 
@@ -126,12 +128,12 @@ export const sendTokenToBackend = async (token: string): Promise<any> => {
     console.log("Using auth token:", token);
 
     const response = await fetch(
-      "https://movie-explorer-ror-varun.onrender.com/api/v1/update_device_token",
+      `${API_URL}/update_device_token`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: ` Bearer ${token}`,
+          Authorization: ` Bearer ${tokenn}`,
         },
         body: JSON.stringify({ device_token: token }),
       }
@@ -174,7 +176,7 @@ export const toggleWishList = async (movie_id: number, token: string) => {
 export const getWishlistMovies = async () => {
   let token = localStorage.getItem("token");
   const response = await axios.get(
-    "https://movie-explorer-ror-varun.onrender.com/api/v1/movies/watchlist",
+    `${API_URL}/movies/watchlist`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -184,14 +186,14 @@ export const getWishlistMovies = async () => {
   return response.data.movies;
 };
 
-export const updateProfileImage = async (image) => {
+export const updateProfileImage = async (image:File) => {
   try {
     const formData = new FormData();
     formData.append("profile_picture", image);
 
     const token = localStorage.getItem("token");
     const response = await fetch(
-      "https://movie-explorer-ror-varun.onrender.com/api/v1/update_profile_picture",
+      `${API_URL}/update_profile_picture`,
       {
         method: "POST",
         headers: {
@@ -207,8 +209,7 @@ export const updateProfileImage = async (image) => {
 
     const data = await response.json();
     return data;
-  } catch (error) {
-    console.log("in error");
+  } catch (error:any) {
     throw new Error(error.message);
   }
 };
@@ -216,7 +217,7 @@ export const fetchUserDetails = async () => {
   try {
     const token = localStorage.getItem("token");
     const response = await fetch(
-      "https://movie-explorer-ror-varun.onrender.com/api/v1/user",
+      `${API_URL}/user`,
       {
         method: "GET",
         headers: {
@@ -232,38 +233,21 @@ export const fetchUserDetails = async () => {
 
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch (error:any) {
     throw new Error(error.message);
   }
 };
 
 
-
-interface Plan {
-  id: string;
-  name: string;
-  price: string;
-  features: string[];
-  duration: string;
-  popular?: boolean;
-}
-
-interface PaymentResponse {
-  success: boolean;
-  error?: string;
-}
-
-
 export const createSubscription = async (planType: string): Promise<string> => {
   try {
-    // const token = localStorage.getItem("");
-    const token="eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciIsInN1YiI6IjUxIiwic2NwIjoidXNlciIsImF1ZCI6bnVsbCwiaWF0IjoxNzQ2NzAwMzM5LCJleHAiOjE3NDY3MjE5MzksImp0aSI6IjFiNzM1NzI1LTI3MzktNGUxMi1hOWQxLTYzZmU4YjY0NGJmNiJ9.6IeaIejl1kS00pXapGBsDsPJF0yCbX8mbs77jqGCUOI";
+    const token = localStorage.getItem("token");
     console.log("Retrieved token:", token);
     if (!token) {
       throw new Error("No authentication token found");
     }
 
-    const response = await axios.post("https://movie-explorer-ror-aalekh-2ewg.onrender.com/api/v1/subscriptions",
+    const response = await axios.post(`${API_URL}/user_subscriptions`,
       { plan_type: planType },
       {
         headers: {
@@ -273,7 +257,6 @@ export const createSubscription = async (planType: string): Promise<string> => {
       }
     );
 
-    console.log('API Response:', response.data);
 
     if (response.data.error) {
       throw new Error(response.data.error);
@@ -286,42 +269,81 @@ export const createSubscription = async (planType: string): Promise<string> => {
 
     return checkoutUrl;
   } catch (error: any) {
-    console.error('Error creating subscription:', error);
     throw new Error(error.message || 'Failed to initiate subscription');
   }
 };
 
 
-export const getSubscriptionStatus = async (tokenn: string): Promise<SubscriptionStatus> => {
+export const success = async (sessionId: string) => {
   try {
-    const token="eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciIsInN1YiI6IjUxIiwic2NwIjoidXNlciIsImF1ZCI6bnVsbCwiaWF0IjoxNzQ2NzAwMzM5LCJleHAiOjE3NDY3MjE5MzksImp0aSI6IjFiNzM1NzI1LTI3MzktNGUxMi1hOWQxLTYzZmU4YjY0NGJmNiJ9.6IeaIejl1kS00pXapGBsDsPJF0yCbX8mbs77jqGCUOI";
+    const authToken = localStorage.getItem('token');
+    const response = await axios.get(
+      `${API_URL}/user_subscriptions/success?session_id=${sessionId}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error:any) {
+    throw new Error(error.response?.data?.error || 'Failed to verify subscription.');
+  }
+};
+export const isApiError = (data: any): data is ApiError => {
+  return data && typeof data === 'object' && 'error' in data;
+};
 
+export const getSubscriptionStatus = async (): Promise<SubscriptionStatus> => {
+  try {
+    let token=localStorage.getItem("token");
     if (!token) {
       throw new Error('No authentication token found');
     }
 
-    const response: AxiosResponse<SubscriptionStatus | ApiError> = await axios.get("https://movie-explorer-ror-aalekh-2ewg.onrender.com/api/v1/subscriptions/status",
+    const response: AxiosResponse<SubscriptionStatus | ApiError> = await axios.get(
+      `${API_URL}/user_subscriptions/status`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
+    console.log("in sub api"+response);
 
-    if ('error' in response.data) {
+    if (isApiError(response.data)) {
       throw new Error(response.data.error);
     }
 
-    return response.data;
+    return response.data as SubscriptionStatus;
   } catch (error) {
     console.error('Subscription Status Error:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       response: axios.isAxiosError(error) ? error.response?.data : undefined,
       status: axios.isAxiosError(error) ? error.response?.status : undefined,
     });
+
     if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.error || 'Failed to fetch subscription status');
+      const data = error.response?.data;
+      if (isApiError(data)) {
+        throw new Error(data.error);
+      }
+      throw new Error('Failed to fetch subscription status');
     }
+
     throw new Error('An unexpected error occurred');
   }
+};
+export const cancelSubscription = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found");
+
+  const response = await axios.get(
+    `${API_URL}/user_subscriptions/cancel`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return response.data;
 };

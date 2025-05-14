@@ -15,28 +15,8 @@ import { ArrowBack } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addMovie, updateMovie } from "../../Utils/Api";
-
-interface Movie {
-  id?: number;
-  title: string;
-  genre: string;
-  rating: number | string;
-  poster_url: string | File;
-  banner_url: string | File;
-  release_year: number;
-  director: string;
-  description: string;
-}
-
-const genres = [
-  "Action",
-  "Romance",
-  "Thriller",
-  "Drama",
-  "Comedy",
-  "Sci-Fi",
-  "Horror",
-];
+import { Movie, genres } from "../../types/AdminPanel";
+import { toast } from "react-toastify";
 
 const AdminPanel: React.FC = () => {
   const location = useLocation();
@@ -59,6 +39,7 @@ const AdminPanel: React.FC = () => {
     poster_url?: string;
     banner_url?: string;
   }>({});
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof Movie, string>>>(
     {}
@@ -134,7 +115,8 @@ const AdminPanel: React.FC = () => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    // e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -190,9 +172,10 @@ const AdminPanel: React.FC = () => {
         await updateMovie(formData.id, data);
       } else {
         await addMovie(data);
+        toast.success("Movie Added Successfully");
       }
 
-      setTimeout(() => navigate("/movies"), 1500);
+      setTimeout(() => navigate("/movies"));
     } catch (err) {
       console.error(err);
     } finally {
@@ -311,8 +294,9 @@ const AdminPanel: React.FC = () => {
               {errors.rating}
             </Typography>
           )}
+
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}>
               <Typography>Poster</Typography>
               <Button
                 component="label"
@@ -356,7 +340,7 @@ const AdminPanel: React.FC = () => {
               )}
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid xs={12} sm={6}>
               <Typography>Banner</Typography>
               <Button
                 component="label"

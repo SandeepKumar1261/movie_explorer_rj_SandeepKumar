@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import alterImage from "../../../assets/FightClub.jpeg";
 import {
-  Grid,
   Typography,
   Button,
   Chip,
@@ -12,26 +11,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
-import { toggleWishList } from "../../../Utils/Api"; // adjust path
-
-interface Movie {
-  id: number;
-  title: string;
-  genre: string;
-  rating: number;
-  release_year: number | string;
-  director: string;
-  description?: string;
-  poster_url?: string;
-  banner_url?: string;
-  duration?: number;
-  premium?: boolean;
-  inWatchlist?: boolean; 
-}
-
-interface MovieDetailsProps {
-  movie: Movie | null;
-}
+import { toggleWishList } from "../../../Utils/Api";
+import { MovieDetailsProps } from "../../../types/MovieDetails";
 
 const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
   const theme = useTheme();
@@ -42,8 +23,8 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
 
   const handleToggleWishlist = async () => {
     if (!movie) return;
-    const token=localStorage.getItem("token");
-    if(!token){
+    const token = localStorage.getItem("token");
+    if (!token) {
       return;
     }
     try {

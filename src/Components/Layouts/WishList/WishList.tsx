@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
   Box,
   Typography,
@@ -18,18 +17,8 @@ import {
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { getWishlistMovies, toggleWishList } from "../../../Utils/Api";
-
-interface Movie {
-  id: number;
-  title: string;
-  genre: string;
-  release_year: number;
-  rating: string;
-  director: string;
-  duration: number;
-  premium: boolean;
-  poster_url: string;
-}
+import { Movie } from "../../../types/WishList";
+import { toast } from "react-toastify";
 
 const darkTheme = createTheme({
   palette: {
@@ -80,6 +69,7 @@ const WishlistPage: React.FC = () => {
 
     try {
       const response = await toggleWishList(movieId, token);
+      toast.success("Movie removed form WishList");
       setMovies(movies.filter((currMovie) => currMovie.id !== movieId));
       console.log("Wishlist toggled:", response);
     } catch (error) {
@@ -153,9 +143,9 @@ const WishlistPage: React.FC = () => {
               display="flex"
               justifyContent="center"
               alignItems="center"
-              height="50vh"
+              height="30vh"
             >
-              <Typography color="text.secondary">
+              <Typography color="white">
                 Your wishlist is empty
               </Typography>
             </Box>
@@ -290,6 +280,8 @@ const WishlistPage: React.FC = () => {
                         color: "#888",
                         p: 0.5,
                       }}
+                      
+                      aria-label="delete"
                       onClick={() => handleDeleteClick(movie.id)}
                     >
                       <DeleteIcon fontSize="small" />

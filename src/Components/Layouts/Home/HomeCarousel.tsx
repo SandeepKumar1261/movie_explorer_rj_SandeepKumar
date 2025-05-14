@@ -2,42 +2,23 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Typography,
-  Card,
-  CardMedia,
-  CardContent,
   IconButton,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import StarIcon from "@mui/icons-material/Star";
-import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { deleteMovie } from "../../../Utils/Api";
 import { useNavigate } from "react-router-dom";
+import { deleteMovie } from "../../../Utils/Api";
+import MovieCard from "./MovieCard";
+import { Movie, HomeCarouselProps } from "../../../types/HomeCarousel";
+import { toast } from "react-toastify";
 
-interface Movie {
-  id: number;
-  title: string;
-  genre: string;
-  rating: number;
-  release_year: number | string;
-  director: string;
-  description?: string;
-  poster_url?: string;
-  banner_url?: string;
-  duration?: number;
-  premium?: boolean;
-}
-
-interface HomeCarouselProps {
-  genre: string;
-  movies: Movie[];
-}
-
-const HomeCarousel: React.FC<HomeCarouselProps> = ({ genre, movies }) => {
+const HomeCarousel: React.FC<HomeCarouselProps> = ({
+  genre,
+  movies,
+  onMovieDelete,
+}) => {
   const [scrollX, setScrollX] = useState<number>(0);
   const [maxScroll, setMaxScroll] = useState<number>(0);
   const [touchStart, setTouchStart] = useState<number>(0);
@@ -53,9 +34,8 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({ genre, movies }) => {
   const isMdScreen = useMediaQuery(theme.breakpoints.between("md", "lg"));
 
   useEffect(() => {
-    const user: { role?: string } = JSON.parse(localStorage.getItem("user") || "{}");
-    console.log(user.user);
-    setIsSupervisor(user.user.role === "supervisor");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setIsSupervisor(user.user?.role === "supervisor");
   }, []);
 
   const getCardWidth = (): number => {
@@ -119,8 +99,14 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({ genre, movies }) => {
     if (touchStart - touchEnd < -threshold) handleScrollLeft();
   };
 
-  const handleCardClick = (movieId: number) => {
-    navigate(`/movie/${movieId}`);
+  const handleCardClick = (movieId: number, premium: boolean) => {
+    const planType = localStorage.getItem("plan");
+    if (premium && planType !== "3-months") {
+      toast.info("This is a premium movie. Please upgrade your plan.");
+      navigate("/subscription");
+    } else {
+      navigate(`/movie/${movieId}`);
+    }
   };
 
   const handleEditClick = (movie: Movie) => {
@@ -130,7 +116,15 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({ genre, movies }) => {
   const handleDeleteMovie = async (e: React.MouseEvent, movieId: number) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this movie?")) {
-      await deleteMovie(movieId);
+      try {
+        await deleteMovie(movieId);
+        if (onMovieDelete) {
+          onMovieDelete(movieId);
+        }
+      } catch (error) {
+        console.error("Failed to delete movie:", error);
+        alert("Failed to delete the movie. Please try again.");
+      }
     }
   };
 
@@ -231,123 +225,16 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({ genre, movies }) => {
             }}
           >
             {movies.map((movie: Movie) => (
-              <Card
+              <MovieCard
                 key={movie.id}
-                onClick={() => handleCardClick(movie.id)}
-                sx={{
-                  width: CARD_WIDTH,
-                  bgcolor: "#2b2b2b",
-                  color: "#fff",
-                  borderRadius: 2,
-                  overflow: "hidden",
-                  flexShrink: 0,
-                  cursor: "pointer",
-                  position: "relative",
-                }}
-              >
-                {isSupervisor && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 10,
-                      right: 10,
-                      zIndex: 2,
-                      display: "flex",
-                      gap: 1,
-                    }}
-                  >
-                    <IconButton
-                      size="small"
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        handleEditClick(movie);
-                      }}
-                      sx={{
-                        bgcolor: "rgba(0,0,0,0.7)",
-                        color: "#fff",
-                        "&:hover": {
-                          bgcolor: "rgba(0,0,0,0.9)",
-                          color: "#00bcd4",
-                        },
-                        width: isXsScreen ? 28 : 32,
-                        height: isXsScreen ? 28 : 32,
-                      }}
-                    >
-                      <EditIcon sx={{ fontSize: isXsScreen ? 16 : 18 }} />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={(e: React.MouseEvent) => handleDeleteMovie(e, movie.id)}
-                      sx={{
-                        bgcolor: "rgba(0,0,0,0.7)",
-                        color: "red",
-                        width: isXsScreen ? 28 : 32,
-                        height: isXsScreen ? 28 : 32,
-                      }}
-                    >
-                      <DeleteIcon sx={{ fontSize: isXsScreen ? 16 : 18 }} />
-                    </IconButton>
-                  </Box>
-                )}
-
-                {movie.premium && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 10,
-                      left: 10,
-                      zIndex: 1,
-                      bgcolor: "rgba(0,0,0,0.6)",
-                      borderRadius: "50%",
-                      p: 0.8,
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <WorkspacePremiumIcon
-                      sx={{
-                        color: "#FFD700",
-                        fontSize: isXsScreen ? 18 : 24,
-                      }}
-                    />
-                  </Box>
-                )}
-
-                <CardMedia
-                  component="img"
-                  height={isXsScreen ? 200 : 250}
-                  image={
-                    movie.poster_url ||
-                    "https://via.placeholder.com/300x450?text=No+Image"
-                  }
-                  alt={movie.title || "Movie poster"}
-                  sx={{ height: 250, objectFit: "cover" }}
-                />
-                <CardContent>
-                  <Typography
-                    variant="subtitle1"
-                    noWrap
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    {movie.title}
-                  </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                    <Typography variant="body2">
-                      Rating {movie.rating}/10
-                    </Typography>
-                    <StarIcon
-                      sx={{ color: "#FFD700", fontSize: 18, ml: 0.5 }}
-                    />
-                  </Box>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Released Year: {movie.release_year}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 0.5 }}>
-                    Director: {movie.director}
-                  </Typography>
-                </CardContent>
-              </Card>
+                movie={movie}
+                isSupervisor={isSupervisor}
+                cardWidth={CARD_WIDTH}
+                isXsScreen={isXsScreen}
+                onCardClick={handleCardClick}
+                onEditClick={handleEditClick}
+                onDeleteClick={handleDeleteMovie}
+              />
             ))}
           </Box>
 

@@ -8,10 +8,8 @@ import {
   Button,
 } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
-import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-import Footer from '../../Common/Footer';
-import Navbar from '../../Common/Navbar';
+import { success } from '../../../Utils/Api';
 
 const Success = () => {
   const [loading, setLoading] = useState(true);
@@ -20,7 +18,7 @@ const Success = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const verifySubscription = async () => {
+    const fetchSubscription = async () => {
       const params = new URLSearchParams(location.search);
       const sessionId = params.get('session_id');
 
@@ -30,42 +28,31 @@ const Success = () => {
         return;
       }
 
-      try { 
-        // const authToken = localStorage.getItem('token');
-        const authToken = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciIsInN1YiI6IjUxIiwic2NwIjoidXNlciIsImF1ZCI6bnVsbCwiaWF0IjoxNzQ2NzAwMzM5LCJleHAiOjE3NDY3MjE5MzksImp0aSI6IjFiNzM1NzI1LTI3MzktNGUxMi1hOWQxLTYzZmU4YjY0NGJmNiJ9.6IeaIejl1kS00pXapGBsDsPJF0yCbX8mbs77jqGCUOI";
-        const response = await axios.get(`https://movie-explorer-ror-aalekh-2ewg.onrender.com/api/v1/subscriptions/success?session_id=${sessionId}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-
-        console.log('API Response:', response.data); 
-        setSubscriptionDetails(response.data); 
+      try {
+        const response = await success(sessionId);
+        console.log('API Response:', response);
+        setSubscriptionDetails(response);
         setLoading(false);
-      } catch (err) {
+      } catch (err:any) {
         console.error('Error verifying subscription:', err);
-        setError(err.response?.data?.error ||'Failed to verify subscription. Please try again.'
-        );
+        setError(err.message || 'Failed to verify subscription. Please try again.');
         setLoading(false);
       }
     };
 
-    verifySubscription();
+    fetchSubscription();
   }, [location.search]);
 
   return (
     <Box
       sx={{
-        bgcolor: 'rgb(20, 20, 30)',
-        minHeight: '100vh',
+        bgcolor: 'black',
+        minHeight: '40vh',
+        maxHeight: '700px',
         display: 'flex',
         flexDirection: 'column',
       }}
     >
-      <Navbar />
       <Box
         sx={{
           flex: 1,
@@ -82,10 +69,10 @@ const Success = () => {
             sx={{
               p: 4,
               textAlign: 'center',
-              bgcolor: 'rgba(20, 20, 20, 0.9)',
+              bgcolor: 'black',
               color: '#fff',
               borderRadius: 3,
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid gray',
             }}
           >
             {loading ? (
@@ -113,7 +100,7 @@ const Success = () => {
                   variant="contained"
                   color="primary"
                   size="large"
-                  onClick={() => (window.location.href = '/user/subscription')}
+                  onClick={() => (window.location.href = '/subscription')}
                   sx={{
                     bgcolor: '#E50914',
                     '&:hover': { bgcolor: '#c7000d' },
@@ -170,7 +157,6 @@ const Success = () => {
           </Paper>
         </Container>
       </Box>
-      <Footer />
     </Box>
   );
 };

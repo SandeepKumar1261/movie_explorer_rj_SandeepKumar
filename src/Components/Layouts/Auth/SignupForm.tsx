@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import {
   TextField,
   Button,
@@ -95,7 +95,7 @@ const SignupForm: React.FC = () => {
 
     try {
       const user = { name, email, password };
-      const data = await signupUser(user);
+      await signupUser(user);
       toast.success("Signup successful!");
       navigate("/login");
     } catch (err: any) {
@@ -124,7 +124,6 @@ const SignupForm: React.FC = () => {
         py: 2,
       }}
     >
-      <ToastContainer position="top-right" autoClose={3000} theme="dark" />
       <Container maxWidth="lg">
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Paper

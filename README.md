@@ -52,4 +52,3 @@ export default tseslint.config({
   },
 })
 ```
-"# movie_explorer_rj_SandeepKumar" 

@@ -15,36 +15,29 @@ import {
   Chip,
   CircularProgress,
 } from '@mui/material';
-import { Check, ArrowForward } from '@mui/icons-material';
-
+import { Check } from '@mui/icons-material';
 import { createSubscription } from '../../../Utils/Api';
+import { Plan } from '../../../types/Subscription';
 
-interface Plan {
-  id: string;
-  name: string;
-  price: string;
-  features: string[];
-  duration: string;
-  popular?: boolean;
-}
-
-const SubscriptionPlans = () => {
+const SubscriptionPlans: React.FC = () => {
   window.scrollTo(0, 0);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const plans: Plan[] = [
     {
-      id: '1_day',
+      id: '1-day',
       name: '1 Day Pass',
       price: '$1.99',
       features: ['Full access to all movies', 'Unlimited streaming', 'HD quality', 'No ads'],
       duration: '24 hours of premium access',
+      basic: true,
+
     },
     {
-      id: '1_week',
-      name: '7 Day Pass',
+      id: '1-month',
+      name: '30 Day Pass',
       price: '$7.99',
       features: [
         'Full access to all movies',
@@ -53,12 +46,11 @@ const SubscriptionPlans = () => {
         'No ads',
         'Offline downloads',
       ],
-      duration: '7 days of premium access',
-      popular: true,
+      duration: '30 days of premium access',
     },
     {
-      id: '1_month',
-      name: '1 Month Premium',
+      id: '3-months',
+      name: '3 Month Premium',
       price: '$19.99',
       features: [
         'Full access to all movies',
@@ -67,7 +59,9 @@ const SubscriptionPlans = () => {
         'No ads',
         'Early access to new releases',
       ],
-      duration: '30 days of premium access',
+      duration: '3 Monthsof premium access',
+      popular: true,
+
     },
   ];
 
@@ -94,16 +88,15 @@ const SubscriptionPlans = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: '#000', minHeight: '60vh',maxHeight:"1400px", display: 'flex', flexDirection: 'column',mt:"1px" }}>
+    <Box sx={{ bgcolor: '#000', minHeight: '60vh', maxHeight: "1400px", display: 'flex', flexDirection: 'column', mt: "1px" }}>
       <Box sx={{ flex: 1 }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: 1 }}>
             <Typography
               variant="body1"
               component="h5"
-              // fontWeight="bold"
               gutterBottom
-              sx={{ color: '#fff', fontSize: { xs: '1rem', sm: '1.2rem', md: '1.6rem' },margin:0 }}
+              sx={{ color: '#fff', fontSize: { xs: '1rem', sm: '1.2rem', md: '1.6rem' }, margin: 0 }}
             >
               Choose Your Movie Explorer Plan
             </Typography>
@@ -130,8 +123,8 @@ const SubscriptionPlans = () => {
                   maxWidth: '400px',
                   display: 'flex',
                   justifyContent: 'center',
-                  margin:0,
-                  p:0
+                  margin: 0,
+                  p: 0,
                 }}
               >
                 <Card
@@ -167,14 +160,28 @@ const SubscriptionPlans = () => {
                       }}
                     />
                   )}
+                  {plan.basic && (
+                    <Chip
+                      label="BASIC"
+                      color="warning"
+                      size="small"
+                      sx={{
+                        position: 'absolute',
+                        top: 1,
+                        right: 1,
+                        borderRadius: '0 4px 0 4px',
+                        fontWeight: 'bold',
+                      }}
+                    />
+                  )}
                   <CardContent sx={{ p: 0 }}>
-                    <Typography variant="body1" component="h5" fontWeight="bold" gutterBottom sx={{margin:0,p:0}}>
+                    <Typography variant="body1" component="h5" fontWeight="bold" gutterBottom sx={{ margin: 0, p: 0 }}>
                       {plan.name}
                     </Typography>
                     <Typography variant="body1" color="rgba(255,255,255,0.6)" gutterBottom>
                       {plan.duration}
                     </Typography>
-                    <Typography variant="h5"  sx={{ my:0}}>
+                    <Typography variant="h5" sx={{ my: 0 }}>
                       {plan.price}
                     </Typography>
                     <List dense sx={{ mb: 0.1 }}>
@@ -196,7 +203,7 @@ const SubscriptionPlans = () => {
                       onClick={() => setSelectedPlan(plan.id)}
                       sx={{
                         color: 'white',
-                        borderColor:"white",
+                        borderColor: "white",
                         bgcolor: selectedPlan === plan.id ? '#E50914' : 'transparent',
                         '&:hover': {
                           bgcolor: selectedPlan === plan.id ? 'red' : 'black',
@@ -215,13 +222,24 @@ const SubscriptionPlans = () => {
           {selectedPlan && (
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Paper elevation={3} sx={{ p: 2, width: '100%', maxWidth: 'md', bgcolor: '#121212', color: '#fff' }}>
-                <Typography variant="h5" gutterBottom sx={{fontSize:{xs:"1rem",sm:"1.4rem"}}}>Confirm Your Subscription</Typography>
-                <Typography variant="body1" color="rgba(255,255,255,0.7)" gutterBottom>
+                <Typography variant="h5" gutterBottom sx={{ fontSize: { xs: "1rem", sm: "1.1rem" } }}>
+                  Confirm Your Subscription
+                </Typography>
+                <Typography variant="body2" color="rgba(255,255,255,0.7)" gutterBottom>
                   You selected {plans.find((p) => p.id === selectedPlan)?.name} for {plans.find((p) => p.id === selectedPlan)?.price}.
                 </Typography>
                 {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
-                <Button variant="contained" size="large" fullWidth disabled={isProcessing} onClick={handleSubscribe} sx={{ py: 1.5, bgcolor: '#E50914' }}>
-                  {isProcessing ? <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} /> : 'Subscribe Now'}
+                <Button
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  // disabled={isProcessing}
+                  onClick={handleSubscribe}
+                  sx={{ py: 1, bgcolor: '#E50914' }}
+                >
+                  {isProcessing ? 
+                  <CircularProgress size={24}  sx={{color:"white", mr: 1 }} />
+                  : 'Subscribe Now'}
                 </Button>
               </Paper>
             </Box>

@@ -2,34 +2,16 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
-  Card,
-  CardMedia,
-  CardContent,
   CircularProgress,
   TextField,
-  IconButton,
   Pagination,
   MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { fetchMoviesAlll, deleteMovie } from "../../../Utils/Api";
-import StarIcon from "@mui/icons-material/Star";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
-
-interface Movie {
-  id: number;
-  title: string;
-  genre: string;
-  rating: number;
-  description: string;
-  poster_url?: string;
-  banner_url?: string;
-  release_year: number;
-  director: string;
-  premium?: boolean;
-}
+import { MoviesProps } from "../../../types/Movies";
+import { toast } from "react-toastify";
+import MovieCard from "./MovieCard";
 
 const genreFilters = [
   "All",
@@ -42,22 +24,22 @@ const genreFilters = [
   "Horror",
 ];
 
-const Movies: React.FC = () => {
-  const [movies, setMovies] = useState<Movie[]>([]);
+const Movies: React.FC<MoviesProps> = ({ onMovieDelete }) => {
+  const [movies, setMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [rating, setRating] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [userRole, setUserRole] = useState<string>("");
+  const [userRole, setUserRole] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setUserRole(user.role || "");
+    setUserRole(user.user?.role || "");
   }, []);
 
   useEffect(() => {
@@ -76,7 +58,7 @@ const Movies: React.FC = () => {
           ratingQuery
         );
 
-        if (response?.movies) {
+        if (response?.movies && Array.isArray(response.movies)) {
           setMovies(response.movies);
           setTotalPages(response.meta?.total_pages || 1);
         } else {
@@ -90,40 +72,42 @@ const Movies: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchMovies();
   }, [currentPage, selectedGenre, searchTerm, rating]);
+  const handleCardClick = (movieId: number, premium: boolean) => {
+    const planType = localStorage.getItem("plan");
+    if (premium) {
+      if (planType !== "3-months") {
+        toast.info("This is a premium movie. Please upgrade your plan.");
+        navigate(`/subscription`);
+        return;
+      }
+    }
 
-  const handleCardClick = (movieId: number) => {
     navigate(`/movie/${movieId}`);
   };
 
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    newPage: number
-  ) => {
+  const handlePageChange = (event:any, newPage:number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
   };
 
-  const handleEditClick = (movie: Movie) => {
+  const handleEditClick = (movie: MoviesProps) => {
     navigate("/admin", { state: { movieId: movie.id, movie } });
   };
 
   const handleDeleteClick = async (movieId: number) => {
     try {
-      const confirmDelete = window.confirm(
-        "Are you sure you want to delete this movie?"
+      await deleteMovie(movieId);
+      setMovies((prevMovies) =>
+        prevMovies.filter((movie) => movie.id !== movieId)
       );
-      if (confirmDelete) {
-        await deleteMovie(movieId);
-        setMovies((prevMovies) =>
-          prevMovies.filter((movie) => movie.id !== movieId)
-        );
+      toast.success("Movie Deleted Successfully");
+      if (onMovieDelete) {
+        onMovieDelete(movieId);
       }
     } catch (error) {
-      console.error("Failed to delete movie:", error);
       setError("Failed to delete movie.");
     }
   };
@@ -254,13 +238,20 @@ const Movies: React.FC = () => {
       </Typography>
 
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
           <CircularProgress />
         </Box>
       ) : error ? (
-        <Typography color="error">{error}</Typography>
-      ) : movies.length === 0 ? (
-        <Typography color="textSecondary">No movies found.</Typography>
+        <Typography color="error" sx={{ textAlign: "center", mt: 2 }}>
+          {error}
+        </Typography>
+      ) : !movies || movies.length === 0 ? (
+        <Typography
+          color="white"
+          sx={{ textAlign: "center", mt: 1, mb: 1, fontSize: "1.2rem" }}
+        >
+          No Movies Found
+        </Typography>
       ) : (
         <Box
           sx={{
@@ -271,126 +262,14 @@ const Movies: React.FC = () => {
           }}
         >
           {movies.map((movie) => (
-            <Box
+            <MovieCard
               key={movie.id}
-              onClick={() => handleCardClick(movie.id)}
-              sx={{
-                position: "relative",
-                width: { xs: "100%", sm: "45%", md: "30%", lg: "18%" },
-                height: { xs: "80vh", md: "65vh" },
-                bgcolor: "#2b2b2b",
-                color: "#fff",
-                cursor: "pointer",
-                overflow: "hidden",
-                border: "none",
-                transition: "transform 0.2s",
-                "&:hover": { transform: "scale(1.02)" },
-              }}
-            >
-              {movie.premium && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 8,
-                    left: 8,
-                    zIndex: 1,
-                    backgroundColor: "rgba(0, 0, 0, 0.6)",
-                    borderRadius: "50%",
-                    padding: "1px",
-                  }}
-                >
-                  <WorkspacePremiumIcon sx={{ color: "gold" }} />
-                </Box>
-              )}
-
-              {userRole === "supervisor" && (
-                <>
-                  <IconButton
-                    sx={{
-                      width: "2rem",
-                      height: "2rem",
-                      position: "absolute",
-                      top: 8,
-                      right: 8,
-                      zIndex: 1,
-                      backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditClick(movie);
-                    }}
-                  >
-                    <EditIcon sx={{ fontSize: "xl", color: "white" }} />
-                  </IconButton>
-                  <IconButton
-                    sx={{
-                      width: "2rem",
-                      height: "2rem",
-                      position: "absolute",
-                      top: 8,
-                      right: 45,
-                      zIndex: 1,
-                      backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteClick(movie.id);
-                    }}
-                  >
-                    <DeleteIcon sx={{ fontSize: "xl", color: "red" }} />
-                  </IconButton>
-                </>
-              )}
-
-              <Card
-                sx={{
-                  boxShadow: "none",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  image={
-                    movie.banner_url ||
-                    "https://via.placeholder.com/300x450?text=No+Image"
-                  }
-                  alt={movie.title}
-                  sx={{ height: "65%", objectFit: "cover" }}
-                />
-                <CardContent
-                  sx={{
-                    color: "white",
-                    backgroundColor: "black",
-                    height: "40%",
-                    py: 0.4,
-                    px: 1,
-                    overflow: "hidden",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Typography variant="subtitle1" noWrap fontWeight="bold">
-                    {movie.title}
-                  </Typography>
-
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 0.1 }}>
-                    <Typography variant="body2">
-                      Rating {movie.rating}/10
-                    </Typography>
-                    <StarIcon sx={{ color: "yellow", fontSize: 18, ml: 0.5 }} />
-                  </Box>
-                  <Typography variant="body2" sx={{ mt: 0.1 }}>
-                    Year: {movie.release_year}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 0.1 }}>
-                    Director: {movie.director}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
+              movie={movie}
+              userRole={userRole}
+              onCardClick={handleCardClick}
+              onEditClick={handleEditClick}
+              onDeleteClick={handleDeleteClick}
+            />
           ))}
         </Box>
       )}
