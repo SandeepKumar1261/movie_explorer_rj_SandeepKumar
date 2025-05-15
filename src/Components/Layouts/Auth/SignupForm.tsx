@@ -276,7 +276,7 @@ const SignupForm: React.FC = () => {
                 placeholder="Confirm Password"
                 type="password"
                 value={confirmPassword}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 error={!!confirmPasswordError}
                 variant="outlined"
                 sx={{
