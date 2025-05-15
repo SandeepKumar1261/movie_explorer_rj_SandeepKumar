@@ -16,7 +16,7 @@ import Success from "./Components/Layouts/Subscription/Success";
 import Navbar from "./Components/Common/Navbar";
 import Footer from "./Components/Common/Footer";
 
-import PublicRoute from "./Utils/Publicroute";
+import PublicRoute from "./Utils/PublicRoute";
 import PrivateRoute from "./Utils/PrivateRoute";
 import ScrollToTop from "./Utils/ScrollTop";
 
