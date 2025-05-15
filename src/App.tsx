@@ -17,7 +17,7 @@ import Navbar from "./Components/Common/Navbar";
 import Footer from "./Components/Common/Footer";
 
 import PublicRoute from "./Utils/Publicroute";
-import PrivateRoute from "./Utils/PrivateRoute";
+import PrivateRoute from "./Utils/PrivateRoute.tsx";
 import ScrollToTop from "./Utils/ScrollTop";
 
 import { generateToken, messaging } from "./Notification/firebase";
