@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import {
   TextField,
   Button,
@@ -8,8 +8,12 @@ import {
   Paper,
   Box,
   Container,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { signupUser } from "../../../Utils/Api.ts";
+import backgroundImage from "../../../assets/net.jpg"; // Import the local image
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
@@ -17,13 +21,13 @@ const SignupForm: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const [nameError, setNameError] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>("");
-
   const [apiError, setApiError] = useState<string>("");
 
   const isEmailValid = (email: string) => {
@@ -116,21 +120,39 @@ const SignupForm: React.FC = () => {
   return (
     <Box
       sx={{
-        minHeight: "calc(100vh - 128px)",
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "black",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         py: 2,
+        opacity:0.8
       }}
     >
       <Container maxWidth="lg">
+        <Typography
+          variant="h4"
+          sx={{
+            position: "absolute",
+            top: { xs: 4, sm: 16 },
+            left: { xs: 4, sm: 16 },
+            fontWeight: "bold",
+            fontSize: { xs: "1.4rem", sm: "1.8rem" },
+            color: "red",
+            zIndex: 10,
+          }}
+        >
+          MovieExplorer
+        </Typography>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Paper
             elevation={3}
             sx={{
+              mt: 4,
               p: { xs: 2, sm: 3 },
-              backgroundColor: "black",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
               color: "white",
               border: "2px solid #374151",
               borderRadius: 2,
@@ -157,12 +179,18 @@ const SignupForm: React.FC = () => {
                 sx={{
                   mb: 0.1,
                   mt: 1,
-                  backgroundColor: "#374151",
                   borderRadius: 1,
-                  input: { color: "white" },
                   "& .MuiOutlinedInput-root": {
+                    "& input": {
+                      color: "white",
+                    },
                     "& fieldset": { borderColor: "#FF0000" },
+                    "&:hover fieldset": { borderColor: "#FF0000" },
+                    "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                   },
+                }}
+                InputProps={{
+                  style: { color: "white" },
                 }}
               />
               <Typography variant="caption" sx={{ color: "#f87171" }}>
@@ -179,12 +207,18 @@ const SignupForm: React.FC = () => {
                 sx={{
                   mb: 0.1,
                   mt: 1,
-                  backgroundColor: "#374151",
                   borderRadius: 1,
-                  input: { color: "white" },
                   "& .MuiOutlinedInput-root": {
+                    "& input": {
+                      color: "white",
+                    },
                     "& fieldset": { borderColor: "#FF0000" },
+                    "&:hover fieldset": { borderColor: "#FF0000" },
+                    "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                   },
+                }}
+                InputProps={{
+                  style: { color: "white" },
                 }}
               />
               <Typography variant="caption" sx={{ color: "#f87171" }}>
@@ -194,7 +228,7 @@ const SignupForm: React.FC = () => {
               <TextField
                 fullWidth
                 placeholder="Enter Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 error={!!passwordError}
@@ -202,12 +236,35 @@ const SignupForm: React.FC = () => {
                 sx={{
                   mb: 0.1,
                   mt: 1,
-                  backgroundColor: "#374151",
                   borderRadius: 1,
-                  input: { color: "white" },
                   "& .MuiOutlinedInput-root": {
+                    "& input": {
+                      color: "white",
+                    },
+                    "& .MuiInputAdornment-root": {
+                      backgroundColor: "transparent",
+                    },
                     "& fieldset": { borderColor: "#FF0000" },
+                    "&:hover fieldset": { borderColor: "#FF0000" },
+                    "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                   },
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        aria-label={
+                          showPassword ? "hide password" : "show password"
+                        }
+                        sx={{ color: "white" }}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                  style: { color: "white" },
                 }}
               />
               <Typography variant="caption" sx={{ color: "#f87171" }}>
@@ -219,18 +276,24 @@ const SignupForm: React.FC = () => {
                 placeholder="Confirm Password"
                 type="password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 error={!!confirmPasswordError}
                 variant="outlined"
                 sx={{
                   mb: 0.1,
                   mt: 1,
-                  backgroundColor: "#374151",
                   borderRadius: 1,
-                  input: { color: "white" },
                   "& .MuiOutlinedInput-root": {
+                    "& input": {
+                      color: "white",
+                    },
                     "& fieldset": { borderColor: "#FF0000" },
+                    "&:hover fieldset": { borderColor: "#FF0000" },
+                    "&.Mui-focused fieldset": { borderColor: "#FF0000" },
                   },
+                }}
+                InputProps={{
+                  style: { color: "white" },
                 }}
               />
               <Typography variant="caption" sx={{ color: "#f87171" }}>
@@ -241,7 +304,6 @@ const SignupForm: React.FC = () => {
                   sx={{
                     mt: 0.7,
                     mb: 0.7,
-                    backgroundColor: "black",
                     padding: 1,
                     borderRadius: 1,
                   }}

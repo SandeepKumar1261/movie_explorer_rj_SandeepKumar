@@ -7,7 +7,7 @@ import {
   Pagination,
   MenuItem,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom"; // Add useSearchParams
 import { fetchMoviesAlll, deleteMovie } from "../../../Utils/Api";
 import { MoviesProps } from "../../../types/Movies";
 import { toast } from "react-toastify";
@@ -36,11 +36,20 @@ const Movies: React.FC<MoviesProps> = ({ onMovieDelete }) => {
   const [userRole, setUserRole] = useState("");
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams(); // Hook to manage query params
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     setUserRole(user.user?.role || "");
   }, []);
+
+  // Initialize currentPage from URL query parameter on mount
+  useEffect(() => {
+    const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
+    if (pageFromUrl >= 1) {
+      setCurrentPage(pageFromUrl);
+    }
+  }, []); // Empty dependency array to run only on mount
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -73,7 +82,11 @@ const Movies: React.FC<MoviesProps> = ({ onMovieDelete }) => {
       }
     };
     fetchMovies();
-  }, [currentPage, selectedGenre, searchTerm, rating]);
+
+    // Update URL with current page
+    setSearchParams({ page: currentPage.toString() });
+  }, [currentPage, selectedGenre, searchTerm, rating, setSearchParams]);
+
   const handleCardClick = (movieId: number, premium: boolean) => {
     const planType = localStorage.getItem("plan");
     if (premium) {
@@ -87,7 +100,7 @@ const Movies: React.FC<MoviesProps> = ({ onMovieDelete }) => {
     navigate(`/movie/${movieId}`);
   };
 
-  const handlePageChange = (event:any, newPage:number) => {
+  const handlePageChange = (event: any, newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }

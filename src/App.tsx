@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,11 +23,17 @@ import ScrollToTop from "./Utils/ScrollTop";
 import { generateToken, messaging } from "./Notification/firebase";
 import { onMessage } from "firebase/messaging";
 import UserDashboard from "./Components/UserDashBoard/UserDashboard";
+import NotFound from "./Components/Layouts/NotFound/NotFound";
 
+// AppLayout separated to handle conditional layout logic
 const AppLayout = () => {
+  const location = useLocation();
+  const hideHeaderFooter = ["/login", "/signup"].includes(location.pathname);
+
   return (
     <>
-      <Navbar />
+      {!hideHeaderFooter && <Navbar />}
+
       <Routes>
         <Route
           path="/login"
@@ -74,8 +80,10 @@ const AppLayout = () => {
         <Route path="/admin" element={<Admin />} />
         <Route path="/success" element={<Success />} />
         <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
-      <Footer />
+
+      {!hideHeaderFooter && <Footer />}
     </>
   );
 };

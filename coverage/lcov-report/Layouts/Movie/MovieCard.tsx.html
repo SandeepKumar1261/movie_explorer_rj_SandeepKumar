@@ -205,7 +205,22 @@
 <a name='L140'></a><a href='#L140'>140</a>
 <a name='L141'></a><a href='#L141'>141</a>
 <a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -291,6 +306,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -371,11 +401,11 @@ const MovieCard: React.FC&lt;MovieCardProps&gt; = <span class="cstat-no" title="
 }) =&gt; {
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;Box
-      onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >onCardClick(movie.id,movie.premium)}</span>
+      onClick={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >onCardClick(movie.id, movie.premium)}</span>
       sx={{
         position: "relative",
         width: { xs: "100%", sm: "45%", md: "30%", lg: "18%" },
-        height: { xs: "80vh", md: "65vh" },
+        height: { xs: "90vh",sm:"50vh", md: "60vh" },
         bgcolor: "#2b2b2b",
         color: "#fff",
         cursor: "pointer",
@@ -448,12 +478,34 @@ const MovieCard: React.FC&lt;MovieCardProps&gt; = <span class="cstat-no" title="
           flexDirection: "column",
         }}
       &gt;
-        &lt;CardMedia
-          component="img"
-          image={movie.banner_url || movie.poster_url}
-          alt={movie.title}
-          sx={{ height: "65%", objectFit: "cover" }}
-        /&gt;
+        &lt;Box sx={{ position: "relative", height:{xs:"75%" ,sm:"70%" }}}&gt;
+          &lt;CardMedia
+            component="img"
+            image={movie.banner_url || movie.poster_url}
+            alt={movie.title}
+            sx={{ height: "100%", objectFit: {xs:"fit",sm:"cover"} }}
+          /&gt;
+          &lt;Box
+            sx={{
+              position: "absolute",
+              bottom: 8,
+              left: 8,
+              zIndex: 1,
+              bgcolor: "rgba(0,0,0,0.6)",
+              borderRadius: 1,
+              p: 0.5,
+              display: "flex",
+              alignItems: "center",
+            }}
+          &gt;
+            &lt;Typography variant="body2" sx={{ color: "#fff" }}&gt;
+              {movie.rating}/10
+            &lt;/Typography&gt;
+            &lt;StarIcon
+              sx={{ color: "yellow", fontSize: 18, ml: 0.5 }}
+            /&gt;
+          &lt;/Box&gt;
+        &lt;/Box&gt;
         &lt;CardContent
           sx={{
             color: "white",
@@ -464,19 +516,12 @@ const MovieCard: React.FC&lt;MovieCardProps&gt; = <span class="cstat-no" title="
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
+            // justifyContent: "space-between",
           }}
         &gt;
           &lt;Typography variant="subtitle1" noWrap fontWeight="bold"&gt;
             {movie.title}
           &lt;/Typography&gt;
-&nbsp;
-          &lt;Box sx={{ display: "flex", alignItems: "center", mt: 0.1 }}&gt;
-            &lt;Typography variant="body2"&gt;
-              Rating {movie.rating}/10
-            &lt;/Typography&gt;
-            &lt;StarIcon sx={{ color: "yellow", fontSize: 18, ml: 0.5 }} /&gt;
-          &lt;/Box&gt;
           &lt;Typography variant="body2" sx={{ mt: 0.1 }}&gt;
             Year: {movie.release_year}
           &lt;/Typography&gt;
@@ -496,7 +541,7 @@ const MovieCard: React.FC&lt;MovieCardProps&gt; = <span class="cstat-no" title="
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-14T06:01:23.831Z
+                at 2025-05-15T11:08:56.431Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

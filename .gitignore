@@ -30,3 +30,4 @@ src/assets/Images/
 src/component/
 src/utils/
 .gitignore
+.env

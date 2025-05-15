@@ -61,6 +61,7 @@ const MovieContainer = () => {
           minHeight: "50vh",
           bgcolor: "black",
           color: "white",
+          mt:"3px"
         }}
       >
         <CircularProgress color="inherit" />

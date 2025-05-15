@@ -97,7 +97,7 @@ const Navbar = () => {
       setAnchorEl(event.currentTarget);
       setShowProfile((prev) => !prev);
     } else {
-      toast.error("Please log In");
+      // toast.error("Please log In");
       navigate("/login");
     }
   };
@@ -110,7 +110,7 @@ const Navbar = () => {
     setUserData(null);
     setShowProfile(false);
     setAnchorEl(null);
-    navigate("/");
+    navigate("/login");
   };
 
   const handleMenuClose = () => {
@@ -158,16 +158,21 @@ const Navbar = () => {
     <>
       <AppBar
         position="static"
-        sx={{ margin: 0, backgroundColor: "black", boxShadow: 3 }}
+        sx={{ margin: 0, backgroundColor: "#141414", 
+         
+
+        }}
       >
         <Toolbar
           sx={{
             maxWidth: "1580px",
             width: "100%",
-            mx: { xs: "0", md: "3%", lg: "1%" },
+            mx: { xs: "0", md: "0%", lg: "0%" },
             display: "flex",
             justifyContent: { xs: "space-between", sm: "space-between" },
             gap: { xs: 0, sm: 2, md: 3, lg: 20 },
+          
+
           }}
         >
           <Typography

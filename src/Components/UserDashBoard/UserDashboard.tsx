@@ -113,19 +113,7 @@ const UserDashboard = () => {
         alignItems: "flex-start",
       }}
     >
-      {/* <Typography
-        variant="body2"
-        sx={{
-          color: "#E0E0E0",
-          mb: { xs: 1, sm: 1 },
-          fontFamily: "'Poppins', sans-serif",
-          textAlign: "left",
-          justifyContent:"flex-start",
-          fontSize: { xs: "1rem", sm: "1.3rem", md: "1.6rem" },
-        }}
-      >
-        User Dashboard
-      </Typography> */}
+
       <Box display="flex" alignItems="center" mb={{ xs: 1, sm: 1 }}>
         <IconButton
           onClick={() => navigate("/")}

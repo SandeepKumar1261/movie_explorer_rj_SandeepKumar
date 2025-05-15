@@ -115,8 +115,9 @@ const AdminPanel: React.FC = () => {
   };
 
   const handleChange = (
-     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-    // e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -197,11 +198,13 @@ const AdminPanel: React.FC = () => {
   return (
     <Container
       maxWidth={isMobile ? "sm" : "md"}
-      sx={{ mt: 0, py: 0, backgroundColor: "black" }}
+      sx={{ mt: 3,mb:4, py: 0, backgroundColor: "black" }}
     >
       <Paper
         elevation={3}
-        sx={{ p: 1, backgroundColor: "black", color: "#fff" }}
+        sx={{ p: 1, backgroundColor: "black", color: "#fff" ,
+          boxShadow:"0px 4px 8px white"
+        }}
       >
         <Box
           sx={{
@@ -279,24 +282,69 @@ const AdminPanel: React.FC = () => {
             </Typography>
           )}
 
-          <TextField
-            name="rating"
-            label="Rating (1-10)"
-            type="number"
-            inputProps={{ min: 1, max: 10, step: 0.1 }}
-            value={formData.rating}
-            onChange={handleChange}
-            fullWidth
-            sx={textFieldStyle}
-          />
-          {errors.rating && (
-            <Typography color="error" variant="caption">
-              {errors.rating}
-            </Typography>
-          )}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              gap: 2,
+              alignItems: "flex-start",
+            }}
+          >
+            <Box sx={{ flex: isMobile ? "none" : 2, width: isMobile ? "100%" : "auto" }}>
+              <TextField
+                name="rating"
+                label="Rating (1-10)"
+                type="number"
+                value={formData.rating}
+                  inputProps={{ min: 1, max: 10, step: 0.1 }}
+                onChange={handleChange}
+                fullWidth
+                sx={textFieldStyle}
+              />
+              {errors.rating && (
+                <Typography color="error" variant="caption">
+                  {errors.rating}
+                </Typography>
+              )}
+            </Box>
 
-          <Grid container spacing={2}>
-            <Grid xs={12} sm={6}>
+            <Box sx={{ flex: isMobile ? "none" : 1, width: isMobile ? "100%" : "auto" }}>
+              <TextField
+                name="release_year"
+                label="Release Year"
+                type="number"
+                value={formData.release_year}
+                onChange={handleChange}
+                fullWidth
+                sx={textFieldStyle}
+                inputProps={{ min: 1900, max: currentYear }}
+              />
+              {errors.release_year && (
+                <Typography color="error" variant="caption">
+                  {errors.release_year}
+                </Typography>
+              )}
+            </Box>
+
+            <Box sx={{ flex: isMobile ? "none" : 2, width: isMobile ? "100%" : "auto" }}>
+              <TextField
+                name="director"
+                label="Director"
+                value={formData.director}
+                onChange={handleChange}
+                fullWidth
+                sx={textFieldStyle}
+              />
+              {errors.director && (
+                <Typography color="error" variant="caption">
+                  {errors.director}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+
+          <Grid container spacing={{ xs: 2, sm: 6 }}>
+            <Grid component="div" item xs={12} sm={6}>
               <Typography>Poster</Typography>
               <Button
                 component="label"
@@ -305,13 +353,15 @@ const AdminPanel: React.FC = () => {
                 sx={{
                   color: "#fff",
                   borderColor: "gray",
-                  backgroundColor: "red",
+                  backgroundColor: "none",
+                  width: isMobile ? "100%" : "auto",
                 }}
               >
                 Choose Poster
                 <input
                   hidden
                   type="file"
+                  data-testid="poster-input"
                   accept="image/*"
                   onChange={(e) => handleImageChange(e, "poster_url")}
                 />
@@ -340,7 +390,7 @@ const AdminPanel: React.FC = () => {
               )}
             </Grid>
 
-            <Grid xs={12} sm={6}>
+            <Grid component="div" item xs={12} sm={6}>
               <Typography>Banner</Typography>
               <Button
                 component="label"
@@ -349,12 +399,14 @@ const AdminPanel: React.FC = () => {
                 sx={{
                   color: "#fff",
                   borderColor: "gray",
-                  backgroundColor: "red",
+                  backgroundColor: "none",
+                  width: isMobile ? "100%" : "auto",
                 }}
               >
                 Choose Banner
                 <input
                   hidden
+                  data-testid="banner-input"
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleImageChange(e, "banner_url")}
@@ -384,37 +436,6 @@ const AdminPanel: React.FC = () => {
               )}
             </Grid>
           </Grid>
-
-          <TextField
-            name="release_year"
-            label="Release Year"
-            type="number"
-            value={formData.release_year}
-            onChange={handleChange}
-            required
-            fullWidth
-            sx={textFieldStyle}
-            inputProps={{ min: 1900, max: currentYear }}
-          />
-          {errors.release_year && (
-            <Typography color="error" variant="caption">
-              {errors.release_year}
-            </Typography>
-          )}
-
-          <TextField
-            name="director"
-            label="Director"
-            value={formData.director}
-            onChange={handleChange}
-            fullWidth
-            sx={textFieldStyle}
-          />
-          {errors.director && (
-            <Typography color="error" variant="caption">
-              {errors.director}
-            </Typography>
-          )}
 
           <TextField
             name="description"

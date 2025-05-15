@@ -2,15 +2,22 @@ import { initializeApp } from "firebase/app";
 import { deleteToken, getMessaging, getToken, onMessage } from "firebase/messaging";
 import { sendTokenToBackend } from "../Utils/Api";
 
-
 const firebaseConfig = {
-  apiKey: "AIzaSyAj2_tR8FBm5C7OvXfkZdoIstbpX4i-WM0",
-  authDomain: "movieexplorer-b12a3.firebaseapp.com",
-  projectId: "movieexplorer-b12a3",
-  storageBucket: "movieexplorer-b12a3.firebasestorage.app",
-  messagingSenderId: "52465435359",
-  appId: "1:52465435359:web:810c97d486ad936d9c1f6a",
-  measurementId: "G-BFWWK5XDNK"
+
+  apiKey: import.meta.env.VITE_APIKEY,
+
+  authDomain: import.meta.env.VITE_AUTHDOMAIN,
+
+  projectId: import.meta.env.VITE_PROJECTID,
+
+  storageBucket: import.meta.env.VITE_STORAGEBUCKET,
+
+  messagingSenderId: import.meta.env.VITE_MESSAGINGSENDERID,
+
+  appId: import.meta.env.VITE_APPID,
+
+  measurementId: import.meta.env.VITE_MEASUREID,
+
 };
 const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);

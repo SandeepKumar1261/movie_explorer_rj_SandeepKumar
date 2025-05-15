@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import MainCarousel from "../Components/Layouts/Home/MainCarousel";        
+import MainCarousel from "../../Components/Layouts/Home/MainCarousel";        
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 const mockNavigate = jest.fn();

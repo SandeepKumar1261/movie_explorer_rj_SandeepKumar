@@ -26,7 +26,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
       sx={{
         position: "relative",
         width: { xs: "100%", sm: "45%", md: "30%", lg: "18%" },
-        height: { xs: "80vh", md: "65vh" },
+        height: { xs: "90vh",sm:"50vh", md: "60vh" },
         bgcolor: "#2b2b2b",
         color: "#fff",
         cursor: "pointer",
@@ -99,12 +99,12 @@ const MovieCard: React.FC<MovieCardProps> = ({
           flexDirection: "column",
         }}
       >
-        <Box sx={{ position: "relative", height: "65%" }}>
+        <Box sx={{ position: "relative", height:{xs:"75%" ,sm:"70%" }}}>
           <CardMedia
             component="img"
             image={movie.banner_url || movie.poster_url}
             alt={movie.title}
-            sx={{ height: "100%", objectFit: "cover" }}
+            sx={{ height: "100%", objectFit: {xs:"fit",sm:"cover"} }}
           />
           <Box
             sx={{
@@ -137,7 +137,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
+            // justifyContent: "space-between",
           }}
         >
           <Typography variant="subtitle1" noWrap fontWeight="bold">

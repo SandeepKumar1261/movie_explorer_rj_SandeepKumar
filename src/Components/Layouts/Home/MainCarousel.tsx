@@ -75,6 +75,10 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
         overflow: "hidden",
         bgcolor: "black",
         color: "white",
+        // m:"auto"
+        // mt:"10px",
+        // ml:"6px",
+        // mr:"6px"
       }}
     >
       <Box

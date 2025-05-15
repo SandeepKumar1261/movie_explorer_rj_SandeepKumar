@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import alterImage from "../../../assets/FightClub.jpeg";
 import {
   Typography,
   Button,
@@ -79,7 +78,7 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
         >
           <Box
             component="img"
-            src={movie.banner_url || alterImage}
+            src={movie.banner_url }
             alt={movie.title}
             sx={{
               width: "100%",

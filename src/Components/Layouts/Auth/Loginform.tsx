@@ -13,7 +13,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { loginUser } from "../../../Utils/Api";
 import { toast } from "react-toastify";
-
+import backgroundImage from "../../../assets/net.jpg";
 
 const Loginform: React.FC = () => {
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ const Loginform: React.FC = () => {
       setPasswordError("Password is required");
       hasError = true;
     }
-    if(!email){
+    if (!email) {
       return;
     }
 
@@ -75,28 +75,43 @@ const Loginform: React.FC = () => {
   return (
     <Box
       sx={{
-        minHeight: "calc(100vh - 128px)",
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "black",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         py: 4,
+        opacity: 0.8,
       }}
     >
-
       <Container maxWidth="lg">
+        <Typography
+          variant="h4"
+          sx={{
+            position: "absolute",
+            top: { xs: 4, sm: 16 },
+            left: { xs: 4, sm: 16 },
+            fontWeight: "bold",
+            fontSize: { xs: "1.4rem", sm: "1.8rem" },
+            color: "red",
+            zIndex: 10,
+          }}
+        >
+          MovieExplorer
+        </Typography>
         <Box
           sx={{
             display: "flex",
             justifyContent: "center",
-            backgroundColor: "black",
           }}
         >
           <Paper
             elevation={3}
             sx={{
               padding: { xs: 2, sm: 3 },
-              backgroundColor: "black",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
               color: "white",
               borderRadius: 2,
               border: "2px solid #374151",
@@ -113,11 +128,7 @@ const Loginform: React.FC = () => {
             >
               Login
             </Typography>
-            <Box
-              component="form"
-              onSubmit={handleLogin}
-              sx={{ mt: 1, backgroundColor: "black" }}
-            >
+            <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
               <Box sx={{ mb: 1 }}>
                 <TextField
                   margin="normal"
@@ -127,11 +138,9 @@ const Loginform: React.FC = () => {
                   error={!!emailError}
                   variant="outlined"
                   sx={{
-                    backgroundColor: "black",
                     borderRadius: 2,
                     "& .MuiOutlinedInput-root": {
                       "& input": {
-                        backgroundColor: "#374151",
                         color: "white",
                       },
                       "& fieldset": { borderColor: "#FF0000" },
@@ -166,10 +175,14 @@ const Loginform: React.FC = () => {
                   error={!!passwordError}
                   variant="outlined"
                   sx={{
-                    backgroundColor: "#374151",
                     borderRadius: 2,
-                    input: { color: "white" },
                     "& .MuiOutlinedInput-root": {
+                      "& input": {
+                        color: "white",
+                      },
+                      "& .MuiInputAdornment-root": {
+                        backgroundColor: "transparent",
+                      },
                       "& fieldset": { borderColor: "#FF0000" },
                       "&:hover fieldset": { borderColor: "#FF0000" },
                       "&.Mui-focused fieldset": { borderColor: "#FF0000" },
@@ -181,7 +194,9 @@ const Loginform: React.FC = () => {
                         <IconButton
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
-                           aria-label={showPassword ? "hide password" : "show password"}
+                          aria-label={
+                            showPassword ? "hide password" : "show password"
+                          }
                           sx={{ color: "white" }}
                         >
                           {showPassword ? <VisibilityOff /> : <Visibility />}
