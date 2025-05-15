@@ -25,7 +25,6 @@ import { onMessage } from "firebase/messaging";
 import UserDashboard from "./Components/UserDashBoard/UserDashboard";
 import NotFound from "./Components/Layouts/NotFound/NotFound";
 
-// AppLayout separated to handle conditional layout logic
 const AppLayout = () => {
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/signup"].includes(location.pathname);
