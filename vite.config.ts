@@ -6,5 +6,6 @@ export default defineConfig({
   plugins: [react()],
   define: {
     	__VARIABLE_NAME__: JSON.stringify(process.env.VARIABLE_NAME)
-    }
+    },
+    
 })
