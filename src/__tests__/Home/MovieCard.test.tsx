@@ -42,7 +42,6 @@ describe("MovieCard Component", () => {
     expect(screen.getByTestId("WorkspacePremiumIcon")).toBeInTheDocument();
   });
 
-  // Test 5: Does not display premium icon for non-premium movies
   test("does not display premium icon for non-premium movies", () => {
     render(<MovieCard {...defaultProps} />);
 
@@ -51,7 +50,6 @@ describe("MovieCard Component", () => {
     ).not.toBeInTheDocument();
   });
 
-  // Test 6: Shows edit and delete buttons for supervisor
   test("displays edit and delete buttons when isSupervisor is true", () => {
     const props = {
       ...defaultProps,
@@ -63,7 +61,6 @@ describe("MovieCard Component", () => {
     expect(screen.getByTestId("DeleteIcon")).toBeInTheDocument();
   });
 
-  // Test 7: Does not show edit and delete buttons for non-supervisor
   test("does not display edit and delete buttons when isSupervisor is false", () => {
     render(<MovieCard {...defaultProps} />);
 

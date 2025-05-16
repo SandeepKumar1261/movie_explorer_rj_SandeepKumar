@@ -4,7 +4,6 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import Success from '../../Components/Layouts/Subscription/Success'; // Adjust path as needed
 import * as api from '../../Utils/Api'; // Mock the `success` API
 
-// Mock the success API function
 jest.mock('../../Utils/Api', () => ({
   success: jest.fn(),
 }));
