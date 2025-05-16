@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import MainCarousel from "../../Components/Layouts/Home/MainCarousel";        
+import MainCarousel from "../../Components/Layouts/Home/MainCarousel";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 const mockNavigate = jest.fn();
@@ -47,11 +47,13 @@ describe("MainCarousel Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     const useMediaQuery = require("@mui/material/useMediaQuery").default;
-    useMediaQuery.mockImplementation((query: string | ((theme: any) => string)) => {
-      if (query === theme.breakpoints.down("sm")) return false; 
-      if (query === theme.breakpoints.between("sm", "md")) return false; 
-      return true;
-    });
+    useMediaQuery.mockImplementation(
+      (query: string | ((theme: any) => string)) => {
+        if (query === theme.breakpoints.down("sm")) return false;
+        if (query === theme.breakpoints.between("sm", "md")) return false;
+        return true;
+      }
+    );
   });
 
   const renderComponent = (props = {}) => {
@@ -100,16 +102,18 @@ describe("MainCarousel Component", () => {
     expect(screen.getByLabelText(/next-slide/i)).toBeInTheDocument();
   });
 
- 
-
   test("renders pagination dots on mobile screens", () => {
     const useMediaQuery = require("@mui/material/useMediaQuery").default;
-    useMediaQuery.mockImplementation((query: string | ((theme: any) => string)) => {
-      if (query === theme.breakpoints.down("sm")) return true; 
-      return false;
-    });
+    useMediaQuery.mockImplementation(
+      (query: string | ((theme: any) => string)) => {
+        if (query === theme.breakpoints.down("sm")) return true;
+        return false;
+      }
+    );
     renderComponent();
-    expect(screen.getAllByTestId(/pagination-dot-/i)).toHaveLength(movies.length); 
+    expect(screen.getAllByTestId(/pagination-dot-/i)).toHaveLength(
+      movies.length
+    );
   });
 
   test("changes slide on next button click", () => {
@@ -121,15 +125,17 @@ describe("MainCarousel Component", () => {
   test("changes slide on previous button click", () => {
     renderComponent();
     fireEvent.click(screen.getByLabelText(/previous-slide/i));
-    expect(screen.getByText("Movie 2")).toBeInTheDocument(); 
+    expect(screen.getByText("Movie 2")).toBeInTheDocument();
   });
 
   test("changes slide on pagination dot click", () => {
     const useMediaQuery = require("@mui/material/useMediaQuery").default;
-    useMediaQuery.mockImplementation((query: string | ((theme: any) => string)) => {
-      if (query === theme.breakpoints.down("sm")) return true; 
-      return false;
-    });
+    useMediaQuery.mockImplementation(
+      (query: string | ((theme: any) => string)) => {
+        if (query === theme.breakpoints.down("sm")) return true;
+        return false;
+      }
+    );
     renderComponent();
     const dots = screen.getAllByTestId(/pagination-dot-/i);
     fireEvent.click(dots[1]);
@@ -163,5 +169,4 @@ describe("MainCarousel Component", () => {
     renderComponent({ movies: moviesNoDesc });
     expect(screen.getByText("No description available.")).toBeInTheDocument();
   });
-
 });
