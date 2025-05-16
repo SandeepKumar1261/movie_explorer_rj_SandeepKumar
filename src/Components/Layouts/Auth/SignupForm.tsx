@@ -144,7 +144,7 @@ const SignupForm: React.FC = () => {
             zIndex: 10,
           }}
         >
-          MovieExplorer
+          MOVIEFLIX
         </Typography>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Paper

@@ -99,7 +99,7 @@ const Loginform: React.FC = () => {
             zIndex: 10,
           }}
         >
-          MovieExplorer
+          MOVIEFLIX
         </Typography>
         <Box
           sx={{
