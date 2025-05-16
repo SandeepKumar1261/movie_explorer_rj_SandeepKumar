@@ -81,6 +81,7 @@ const UserDashboard = () => {
     if (actionType === "cancelSubscription") {
       try {
         await cancelSubscription();
+        localStorage.removeItem("plan");
         setSubscription(null);
         alert("Subscription canceled successfully!");
       } catch (error) {

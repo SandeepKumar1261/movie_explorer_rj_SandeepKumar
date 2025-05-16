@@ -19,7 +19,7 @@ const Footer = () => {
         <Grid container spacing={{ xs: 2, sm: 4, md: 12, lg: 18, xl: 20 }}>
           <Grid size={{ xs: 12, md: 4 }}>
             <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
-              MovieExplorer
+              MOVIEFLIX
             </Typography>
             <Typography variant="body2" sx={{ color: "gray" }}>
               Discover movies, explore trending trailers, and find what to watch

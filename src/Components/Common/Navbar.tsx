@@ -187,7 +187,7 @@ const Navbar = () => {
               fontFamily: "sans-serif",
             }}
           >
-            MOVIE FLIX
+            MOVIEFLIX
           </Typography>
 
           <Box
