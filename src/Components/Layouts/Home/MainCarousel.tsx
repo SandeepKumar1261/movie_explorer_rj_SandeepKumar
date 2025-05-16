@@ -44,6 +44,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
     );
   };
 
+  
   const handleMovieDetailsClick = (movieId: number) => {
     navigate(`/movie/${movieId}`);
   };
