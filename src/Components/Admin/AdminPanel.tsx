@@ -33,6 +33,7 @@ const AdminPanel: React.FC = () => {
     release_year: new Date().getFullYear(),
     director: "",
     description: "",
+    duration: 0,
   });
 
   const [preview, setPreview] = useState<{
@@ -62,6 +63,7 @@ const AdminPanel: React.FC = () => {
         release_year: movie.release_year || new Date().getFullYear(),
         director: movie.director || "",
         description: movie.description || "",
+        duration: movie.duration || 0,
       });
 
       setPreview({
@@ -110,6 +112,12 @@ const AdminPanel: React.FC = () => {
       newErrors.description = "Description is required";
     }
 
+    if (!formData.duration) {
+      newErrors.duration = "Duration is required";
+    } else if (formData.duration < 1) {
+      newErrors.duration = "Duration must be greater than 0 minutes";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -123,7 +131,9 @@ const AdminPanel: React.FC = () => {
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "rating" || name === "release_year" ? Number(value) : value,
+        name === "rating" || name === "release_year" || name === "duration" 
+          ? Number(value) 
+          : value,
     }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
@@ -160,6 +170,7 @@ const AdminPanel: React.FC = () => {
       data.append("release_year", formData.release_year.toString());
       data.append("director", formData.director);
       data.append("description", formData.description);
+      data.append("duration", formData.duration.toString());
 
       if (formData.poster_url instanceof File) {
         data.append("poster", formData.poster_url);
@@ -198,12 +209,15 @@ const AdminPanel: React.FC = () => {
   return (
     <Container
       maxWidth={isMobile ? "sm" : "md"}
-      sx={{ mt: 3,mb:4, py: 0, backgroundColor: "black" }}
+      sx={{ mt: 3, mb: 4, py: 0, backgroundColor: "black" }}
     >
       <Paper
         elevation={3}
-        sx={{ p: 1, backgroundColor: "black", color: "#fff" ,
-          boxShadow:"0px 4px 8px white"
+        sx={{
+          p: 1,
+          backgroundColor: "black",
+          color: "#fff",
+          boxShadow: "0px 4px 8px white",
         }}
       >
         <Box
@@ -296,7 +310,7 @@ const AdminPanel: React.FC = () => {
                 label="Rating (1-10)"
                 type="number"
                 value={formData.rating}
-                  inputProps={{ min: 1, max: 10, step: 0.1 }}
+                inputProps={{ min: 1, max: 10, step: 0.1 }}
                 onChange={handleChange}
                 fullWidth
                 sx={textFieldStyle}
@@ -341,6 +355,24 @@ const AdminPanel: React.FC = () => {
                 </Typography>
               )}
             </Box>
+          </Box>
+
+          <Box sx={{ flex: isMobile ? "none" : 1, width: isMobile ? "100%" : "auto" }}>
+            <TextField
+              name="duration"
+              label="Duration (minutes)"
+              type="number"
+              value={formData.duration}
+              onChange={handleChange}
+              fullWidth
+              sx={textFieldStyle}
+              inputProps={{ min: 1 }}
+            />
+            {errors.duration && (
+              <Typography color="error" variant="caption">
+                {errors.duration}
+              </Typography>
+            )}
           </Box>
 
           <Grid container spacing={{ xs: 2, sm: 6 }}>
