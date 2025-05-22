@@ -20,7 +20,7 @@ const genreFilters = [
   "Thriller",
   "Drama",
   "Comedy",
-  "Si-Fi",
+  "Sci-Fi",
   "Horror",
 ];
 
