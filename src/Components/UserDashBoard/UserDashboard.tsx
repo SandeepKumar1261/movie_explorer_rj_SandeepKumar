@@ -55,7 +55,7 @@ const UserDashboard = () => {
         if (userString) {
           try {
             const user = JSON.parse(userString);
-            setUserData(user);
+            setUserData(user.user);
           } catch (err) {
             console.error("Invalid user data in localStorage");
           }

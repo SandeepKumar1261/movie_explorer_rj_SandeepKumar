@@ -61,7 +61,7 @@ const Navbar = () => {
         if (userString) {
           try {
             const user = JSON.parse(userString);
-            setUserData(user);
+            setUserData(user.user);
             if (user.profileImage) {
               setPreview(user.profileImage);
             }

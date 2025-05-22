@@ -63,7 +63,7 @@ const AdminPanel: React.FC = () => {
         release_year: movie.release_year || new Date().getFullYear(),
         director: movie.director || "",
         description: movie.description || "",
-        duration: movie.duration || 0,
+        duration: movie.duration || "",
       });
 
       setPreview({

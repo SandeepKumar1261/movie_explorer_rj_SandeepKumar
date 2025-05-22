@@ -180,7 +180,6 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
               color="primary"
               endIcon={<InfoIcon />}
               sx={{
-                fontSize: { xs: 1, md: 3 },
                 px: { xs: 2, md: 3 },
                 py: { xs: 1, md: 1.5 },
               }}
