@@ -20,6 +20,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   onEditClick,
   onDeleteClick,
 }) => {
+     
   return (
     <Box
       onClick={() => onCardClick(movie.id, movie.premium)}
@@ -36,7 +37,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         "&:hover": { transform: "scale(1.02)" },
       }}
     >
-      {movie.premium && (
+      {movie.premium  && (
         <Box
           sx={{
             position: "absolute",
@@ -99,7 +100,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
           flexDirection: "column",
         }}
       >
-        <Box sx={{ position: "relative", height:{xs:"75%" ,sm:"70%" }}}>
+        <Box sx={{ position: "relative", height:{xs:"75%" ,sm:"70%",md:"65%" }}}>
           <CardMedia
             component="img"
             image={movie.banner_url || movie.poster_url}
@@ -131,7 +132,8 @@ const MovieCard: React.FC<MovieCardProps> = ({
           sx={{
             color: "white",
             backgroundColor: "black",
-            height: "40%",
+            // height: "40%",
+            height:{xs:"40%" ,sm:"40%",md:"45%" },
             py: 0.4,
             px: 1,
             overflow: "hidden",

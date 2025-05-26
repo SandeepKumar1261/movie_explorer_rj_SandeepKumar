@@ -8,7 +8,7 @@ export interface Movie {
   release_year: number;
   director: string;
   description: string;
-  duration: number;
+  duration: number | string;
 }
 
 export const genres: string[] = [

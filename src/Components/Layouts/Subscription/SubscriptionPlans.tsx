@@ -158,6 +158,7 @@ const SubscriptionPlans: React.FC = () => {
                     height: "100%",
                     maxHeight: "350px",
                     transition: "all 0.3s",
+                    ml:1,
                     transform:
                       selectedPlan === plan.id ? "scale(1)" : "scale(1)",
                     border: selectedPlan === plan.id ? 1 : 0,

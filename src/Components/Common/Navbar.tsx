@@ -26,6 +26,8 @@ import InfoIcon from "@mui/icons-material/Info";
 import { fetchUserDetails, updateProfileImage } from "../../Utils/Api";
 
 const Navbar = () => {
+    const isSupervisor = JSON.parse(
+    localStorage.getItem("user") || "{}").user?.role;
   const [isOpen, setIsOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -222,7 +224,7 @@ const Navbar = () => {
             >
               Genre
             </Typography>
-            <Typography
+            { !isSupervisor && (<Typography
               component={Link}
               to="/subscription"
               sx={{
@@ -233,7 +235,7 @@ const Navbar = () => {
               }}
             >
               Subscription
-            </Typography>
+            </Typography>)}
             <Typography
               component={Link}
               to="/wishlist"
@@ -244,7 +246,7 @@ const Navbar = () => {
                 "&:hover": { color: "red" },
               }}
             >
-              WishList
+              WatchList
             </Typography>
           </Box>
 

@@ -88,8 +88,9 @@ const Movies: React.FC<MoviesProps> = ({ onMovieDelete }) => {
   }, [currentPage, selectedGenre, searchTerm, rating, setSearchParams]);
 
   const handleCardClick = (movieId: number, premium: boolean) => {
+     const isSupervisor = JSON.parse(localStorage.getItem("user") || "{}").user?.role;
     const planType = localStorage.getItem("plan");
-    if (premium) {
+    if (premium || !isSupervisor) {
       if (planType !== "3-months") {
         toast.info("This is a premium movie. Please upgrade your plan.");
         navigate(`/subscription`);

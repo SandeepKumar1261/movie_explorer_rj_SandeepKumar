@@ -33,7 +33,7 @@ const AdminPanel: React.FC = () => {
     release_year: new Date().getFullYear(),
     director: "",
     description: "",
-    duration: 0,
+    duration: "",
   });
 
   const [preview, setPreview] = useState<{
