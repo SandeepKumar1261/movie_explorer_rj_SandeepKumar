@@ -101,7 +101,7 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({
 
   const handleCardClick = (movieId: number, premium: boolean) => {
     const planType = localStorage.getItem("plan");
-    if (premium && planType !== "3-months") {
+    if (premium && !planType ) {
       toast.info("This is a premium movie. Please upgrade your plan.");
       navigate("/subscription");
     } else {
