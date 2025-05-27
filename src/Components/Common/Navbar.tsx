@@ -31,14 +31,27 @@ import {
 } from "../../Utils/Api";
 
 const Navbar = () => {
-  // const userPlan=localStorage.getItem("plan");
+  const [userImage, setUserImage] = useState(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetchUserDetails();
+        setUserImage(response.user?.profile_picture_url); // Adjust field name based on your API
+      } catch (error) {
+        console.error("Failed to load user profile", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
   const [userPlan, setUserPlan] = useState(null);
 
   useEffect(() => {
     const fetchUserPlan = async () => {
       try {
         const response = await getSubscriptionStatus(); // Replace with your real API
-        console.log(response+" in the nav");
+        console.log(response + " in the nav");
         setUserPlan(response.plan_type);
       } catch (error) {
         console.error("Failed to fetch user plan", error);
@@ -265,22 +278,28 @@ const Navbar = () => {
               {userPlan ? "Active" : "Subscription"}
             </Typography> */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
-      {userPlan && (
-        <FaCrown style={{ color: "#ebc634", fontSize: "1.2rem", marginRight: "2px" }} />
-      )}
-      <Typography
-        component={Link}
-        to="/subscription"
-        sx={{
-          color: userPlan ? "#ebc634" : "red",
-          textDecoration: "none",
-          fontWeight: "bold",
-          "&:hover": { color: "red" },
-        }}
-      >
-        {userPlan ? "Premium" : "Subscription"}
-      </Typography>
-    </Box>
+              {userPlan && (
+                <FaCrown
+                  style={{
+                    color: "#ebc634",
+                    fontSize: "1.2rem",
+                    marginRight: "2px",
+                  }}
+                />
+              )}
+              <Typography
+                component={Link}
+                to="/subscription"
+                sx={{
+                  color: userPlan ? "#ebc634" : "red",
+                  textDecoration: "none",
+                  fontWeight: "bold",
+                  "&:hover": { color: "red" },
+                }}
+              >
+                {userPlan ? "Premium" : "Subscription"}
+              </Typography>
+            </Box>
             <Typography
               component={Link}
               to="/wishlist"
@@ -316,7 +335,16 @@ const Navbar = () => {
                 <FaBell size={20} />
               </IconButton>
               <IconButton onClick={toggleProfileCard} sx={{ color: "white" }}>
-                <FaUserCircle size={20} />
+                {userImage ? (
+                  <Avatar
+                    src={userImage}
+                    alt="User"
+                    sx={{ width: 32, height: 32 }}
+                  />
+                ) : (
+                  <FaUserCircle size={32} />
+                )}
+                {/* <FaUserCircle size={20} /> */}
               </IconButton>
               <Typography
                 variant="body2"
