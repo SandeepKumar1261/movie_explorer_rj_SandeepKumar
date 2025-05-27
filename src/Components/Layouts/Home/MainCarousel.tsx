@@ -196,7 +196,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
                 py: { xs: 1, md: 1.5 },
               }}
             >
-              + WishList
+              + WatchList
             </Button>
           </Stack>
         </Box>

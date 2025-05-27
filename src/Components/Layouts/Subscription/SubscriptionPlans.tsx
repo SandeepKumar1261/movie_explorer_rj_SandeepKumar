@@ -80,7 +80,6 @@ const SubscriptionPlans: React.FC = () => {
     try {
       const checkoutUrl = await createSubscription(selectedPlan);
       if (checkoutUrl) {
-        localStorage.setItem("plan", selectedPlan);
         window.location.href = checkoutUrl;
       } else {
         throw new Error("No checkout URL returned from server.");

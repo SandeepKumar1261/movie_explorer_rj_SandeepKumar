@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaBars, FaTimes, FaBell } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
@@ -24,10 +23,31 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import LanguageIcon from "@mui/icons-material/Language";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoIcon from "@mui/icons-material/Info";
-import { FaCrown } from 'react-icons/fa';
-import { fetchUserDetails, updateProfileImage } from "../../Utils/Api";
+import { FaCrown } from "react-icons/fa";
+import {
+  fetchUserDetails,
+  getSubscriptionStatus,
+  updateProfileImage,
+} from "../../Utils/Api";
 
 const Navbar = () => {
+  // const userPlan=localStorage.getItem("plan");
+  const [userPlan, setUserPlan] = useState(null);
+
+  useEffect(() => {
+    const fetchUserPlan = async () => {
+      try {
+        const response = await getSubscriptionStatus(); // Replace with your real API
+        console.log(response+" in the nav");
+        setUserPlan(response.plan_type);
+      } catch (error) {
+        console.error("Failed to fetch user plan", error);
+      }
+    };
+
+    fetchUserPlan();
+  }, []);
+
   const [isOpen, setIsOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -158,13 +178,7 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar
-        position="static"
-        sx={{ margin: 0, backgroundColor: "#141414", 
-         
-
-        }}
-      >
+      <AppBar position="static" sx={{ margin: 0, backgroundColor: "#141414" }}>
         <Toolbar
           sx={{
             maxWidth: "1580px",
@@ -173,8 +187,6 @@ const Navbar = () => {
             display: "flex",
             justifyContent: { xs: "space-between", sm: "space-between" },
             gap: { xs: 0, sm: 2, md: 3, lg: 20 },
-          
-
           }}
         >
           <Typography
@@ -235,22 +247,40 @@ const Navbar = () => {
               }}
             >
               Subscription
+            </Typography>  */}
+            {/* {userPlan && (
+              <FaCrown style={{ color: "yellow", fontSize: "1.2rem" }} />
+            )}
+            <Typography
+              component={Link}
+              to="/subscription"
+              sx={{
+                 color:userPlan ? "yellow" :"red",
+                textDecoration: "none",
+                // color: "inherit",
+                fontWeight: "bold",
+                "&:hover": { color: "red" },
+              }}
+            >
+              {userPlan ? "Active" : "Subscription"}
             </Typography> */}
-            {userPlan && (
-        <FaCrown style={{ color: "yellow", fontSize: "30px" }} />
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+      {userPlan && (
+        <FaCrown style={{ color: "#ebc634", fontSize: "1.2rem", marginRight: "2px" }} />
       )}
       <Typography
         component={Link}
         to="/subscription"
         sx={{
+          color: userPlan ? "#ebc634" : "red",
           textDecoration: "none",
-          color: "inherit",
           fontWeight: "bold",
           "&:hover": { color: "red" },
         }}
       >
-        {userPlan ? "Active" : "Subscription"}
+        {userPlan ? "Premium" : "Subscription"}
       </Typography>
+    </Box>
             <Typography
               component={Link}
               to="/wishlist"
@@ -454,7 +484,11 @@ const Navbar = () => {
                     </MenuItem>
                   )}
                   <MenuItem onClick={handleLogout} sx={{ mt: 0 }}>
-                    <Button variant="contained" fullWidth sx={{color:"white",backgroundColor:"red"}}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{ color: "white", backgroundColor: "red" }}
+                    >
                       Logout
                     </Button>
                   </MenuItem>
