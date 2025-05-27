@@ -249,7 +249,10 @@ const AdminPanel: React.FC = () => {
         >
           <TextField
             name="title"
-            label="Title"
+            label={
+    <>
+      Title <span style={{ color: "red" ,fontSize:"1.2rem"}}>*</span>
+    </>}
             value={formData.title}
             onChange={handleChange}
             fullWidth
@@ -325,7 +328,10 @@ const AdminPanel: React.FC = () => {
             <Box sx={{ flex: isMobile ? "none" : 1, width: isMobile ? "100%" : "auto" }}>
               <TextField
                 name="release_year"
-                label="Release Year"
+                label={
+    <>
+      Release Year <span style={{ color: "red" ,fontSize:"1.2rem"}}>*</span>
+    </>}
                 type="number"
                 value={formData.release_year}
                 onChange={handleChange}
@@ -360,7 +366,11 @@ const AdminPanel: React.FC = () => {
           <Box sx={{ flex: isMobile ? "none" : 1, width: isMobile ? "100%" : "auto" }}>
             <TextField
               name="duration"
-              label="Duration (minutes)"
+              label={
+    <>
+      Duration <span style={{ color: "red" ,fontSize:"1.2rem"}}>*</span>
+    </>
+              }
               type="number"
               value={formData.duration}
               onChange={handleChange}

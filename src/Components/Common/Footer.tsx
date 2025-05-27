@@ -4,8 +4,6 @@ import { Box, Typography, Link as MuiLink, Divider } from "@mui/material";
 import Grid from '@mui/material/Grid'; 
 
 const Footer = () => {
-  const isSupervisor = JSON.parse(
-    localStorage.getItem("user") || "{}").user?.role;
   return (
     <Box
       component="footer"
@@ -55,7 +53,7 @@ const Footer = () => {
               >
                 Genre
               </MuiLink>
-              {!isSupervisor && (<MuiLink
+              <MuiLink
                 href="/subscription"
                 underline="hover"
                 sx={{
@@ -65,7 +63,7 @@ const Footer = () => {
                 }}
               >
                 Subscription
-              </MuiLink>)}
+              </MuiLink>
               <MuiLink
                 href="/wishlist"
                 underline="hover"

@@ -1,3 +1,4 @@
+
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaBars, FaTimes, FaBell } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
@@ -23,11 +24,10 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import LanguageIcon from "@mui/icons-material/Language";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoIcon from "@mui/icons-material/Info";
+import { FaCrown } from 'react-icons/fa';
 import { fetchUserDetails, updateProfileImage } from "../../Utils/Api";
 
 const Navbar = () => {
-    const isSupervisor = JSON.parse(
-    localStorage.getItem("user") || "{}").user?.role;
   const [isOpen, setIsOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -224,7 +224,7 @@ const Navbar = () => {
             >
               Genre
             </Typography>
-            { !isSupervisor && (<Typography
+            {/* <Typography
               component={Link}
               to="/subscription"
               sx={{
@@ -235,7 +235,22 @@ const Navbar = () => {
               }}
             >
               Subscription
-            </Typography>)}
+            </Typography> */}
+            {userPlan && (
+        <FaCrown style={{ color: "yellow", fontSize: "30px" }} />
+      )}
+      <Typography
+        component={Link}
+        to="/subscription"
+        sx={{
+          textDecoration: "none",
+          color: "inherit",
+          fontWeight: "bold",
+          "&:hover": { color: "red" },
+        }}
+      >
+        {userPlan ? "Active" : "Subscription"}
+      </Typography>
             <Typography
               component={Link}
               to="/wishlist"

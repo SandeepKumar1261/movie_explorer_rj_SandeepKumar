@@ -347,3 +347,18 @@ export const cancelSubscription = async () => {
   );
   return response.data;
 };
+
+
+export const togglenotification = async (status: boolean) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found");
+
+  const response = await axios.post(
+    `${API_URL}/toggle_notifications`,
+    { status },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return response.data;
+}
