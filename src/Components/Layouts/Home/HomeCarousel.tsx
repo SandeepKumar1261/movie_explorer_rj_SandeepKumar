@@ -9,7 +9,7 @@ import {
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useNavigate } from "react-router-dom";
-import { deleteMovie } from "../../../Utils/Api";
+import { deleteMovie, getSubscriptionStatus } from "../../../Utils/Api";
 import MovieCard from "./MovieCard";
 import { Movie, HomeCarouselProps } from "../../../types/HomeCarousel";
 import { toast } from "react-toastify";
@@ -99,8 +99,9 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({
     if (touchStart - touchEnd < -threshold) handleScrollLeft();
   };
 
-  const handleCardClick = (movieId: number, premium: boolean) => {
-    const planType = localStorage.getItem("plan");
+  const handleCardClick = async(movieId: number, premium: boolean) => {
+    const planType=await getSubscriptionStatus();
+    // const planType = localStorage.getItem("plan");
     if (premium && !planType ) {
       toast.info("This is a premium movie. Please upgrade your plan.");
       navigate("/subscription");

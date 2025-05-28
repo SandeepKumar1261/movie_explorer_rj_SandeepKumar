@@ -302,7 +302,7 @@ const Navbar = () => {
             </Box>
             <Typography
               component={Link}
-              to="/wishlist"
+              to="/watchlist"
               sx={{
                 textDecoration: "none",
                 color: "inherit",
@@ -339,7 +339,7 @@ const Navbar = () => {
                   <Avatar
                     src={userImage}
                     alt="User"
-                    sx={{ width: 32, height: 32 }}
+                    sx={{ width: 32, height: 32,border:"2px solid white" }}
                   />
                 ) : (
                   <FaUserCircle size={32} />
@@ -604,7 +604,7 @@ const Navbar = () => {
         </Typography>
         <Typography
           component={Link}
-          to="/myWishlist"
+          to="/watchlist"
           onClick={toggleMenu}
           sx={{
             textDecoration: "none",
@@ -613,7 +613,7 @@ const Navbar = () => {
             "&:hover": { color: "red", textDecoration: "underline" },
           }}
         >
-          My List
+          WatchList
         </Typography>
       </Box>
     </>

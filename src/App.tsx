@@ -70,7 +70,7 @@ const AppLayout = () => {
           }
         />
         <Route
-          path="/wishlist"
+          path="/watchlist"
           element={
             <PrivateRoute toastMessage="Please login to access your wishlist">
               <WishList />

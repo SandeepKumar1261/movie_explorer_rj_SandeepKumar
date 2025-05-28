@@ -17,6 +17,8 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useNavigate } from 'react-router-dom';
 import InfoIcon from '@mui/icons-material/Info';
 import { Movie, MainCarouselProps } from '../../../types/MainCarousel';
+import { toast } from "react-toastify";
+import { toggleWishList } from "../../../Utils/Api";
 
 const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
   const navigate = useNavigate();
@@ -42,6 +44,15 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
     setCurrentIndex((prevIndex) =>
       prevIndex === movies.length - 1 ? 0 : prevIndex + 1
     );
+  };
+  const handleWashList = async(movieId: number) => {
+    console.log(`Adding movie with ID ${movieId} to watchlist`);
+    try{
+      await toggleWishList(movieId, localStorage.getItem("token") || "");
+    } catch (error) {
+      // toast.error("Movie  "); 
+    }
+    toast.success("Movie added to watchlist!"); 
   };
 
   
@@ -195,6 +206,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
                 px: { xs: 2, md: 3 },
                 py: { xs: 1, md: 1.5 },
               }}
+              onClick={() => handleWashList(currentMovie.id)}
             >
               + WatchList
             </Button>

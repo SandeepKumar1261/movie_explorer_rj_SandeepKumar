@@ -65,7 +65,7 @@ const Footer = () => {
                 Subscription
               </MuiLink>
               <MuiLink
-                href="/wishlist"
+                href="/watchlist"
                 underline="hover"
                 sx={{
                   color: "gray",
