@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
+import { FaCrown } from "react-icons/fa";
 import {
   Box,
   Typography,
@@ -13,21 +13,31 @@ import {
   DialogContent,
   DialogActions,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import {
   fetchUserDetails,
-  getSubscriptionStatus,
   cancelSubscription,
+  getSubscriptionStatuss,
 } from "../../Utils/Api";
 
 const UserDashboard = () => {
+  interface Subscription {
+    id: number;
+    start_date: string;
+    end_date: string;
+    plan_type: string;
+    status: string | null;
+    expires_at?: string;
+  }
   const [userData, setUserData] = useState({
     name: "",
     role: "",
     profile_picture_url: "",
   });
 
-  const [subscription, setSubscription] = useState(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [daysLeft, setDaysLeft] = useState<number | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [actionType, setActionType] = useState("");
   const navigate = useNavigate();
@@ -38,19 +48,28 @@ const UserDashboard = () => {
       navigate("/login");
       return;
     }
-
     const fetchData = async () => {
       try {
         const [user, subDataRaw] = await Promise.all([
           fetchUserDetails(),
-          getSubscriptionStatus(),
+          getSubscriptionStatuss(),
         ]);
 
-        const subData = subDataRaw;
+        const activeSubscription: Subscription = subDataRaw.find(
+          (sub) => sub.status === "active"
+        );
+
         setUserData(user.user);
-        localStorage.setItem("plan", subData.plan_type);
-        setSubscription(subData.plan_type);
+
+        if (activeSubscription) {
+          setSubscription(activeSubscription);
+          localStorage.setItem("plan", activeSubscription.plan_type);
+        } else {
+          setSubscription(null);
+          localStorage.removeItem("plan");
+        }
       } catch (error) {
+        console.error("Error fetching data:", error);
         const userString = localStorage.getItem("user");
         if (userString) {
           try {
@@ -61,13 +80,32 @@ const UserDashboard = () => {
           }
         }
         setSubscription(null);
+        localStorage.removeItem("plan");
       }
     };
-
     fetchData();
   }, [navigate]);
 
-  const handleOpenDialog = (type) => {
+  // Calculate days left for subscription in real-time
+  useEffect(() => {
+    if (subscription?.end_date) {
+      const calculateDaysLeft = () => {
+        const endDate = new Date(subscription.end_date);
+        const now = new Date();
+        const timeDiff = endDate.getTime() - now.getTime();
+        const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        setDaysLeft(days >= 0 ? days : 0);
+      };
+
+      calculateDaysLeft();
+      const interval = setInterval(calculateDaysLeft, 1000 * 60 * 60); // Update every hour
+      return () => clearInterval(interval); // Cleanup on unmount
+    } else {
+      setDaysLeft(null);
+    }
+  }, [subscription]);
+
+  const handleOpenDialog = (type: string) => {
     setActionType(type);
     setOpenDialog(true);
   };
@@ -83,6 +121,7 @@ const UserDashboard = () => {
         await cancelSubscription();
         localStorage.removeItem("plan");
         setSubscription(null);
+        setDaysLeft(null);
         alert("Subscription canceled successfully!");
       } catch (error) {
         console.error("Error canceling subscription:", error);
@@ -114,7 +153,6 @@ const UserDashboard = () => {
         alignItems: "flex-start",
       }}
     >
-
       <Box display="flex" alignItems="center" mb={{ xs: 1, sm: 1 }}>
         <IconButton
           onClick={() => navigate("/")}
@@ -237,17 +275,99 @@ const UserDashboard = () => {
                   variant="body1"
                   sx={{
                     color: "#B0B0B0",
-                    mb: 1.5,
+                    mb: 1,
                     fontSize: { xs: "1rem", sm: "1.1rem" },
                     fontFamily: "'Roboto', sans-serif",
                   }}
                 >
-                  {subscription === "1-day"
+                  {subscription.plan_type === "1-day"
                     ? "Basic"
-                    : subscription === "1-month"
+                    : subscription.plan_type === "1-month"
                     ? "Standard"
                     : "Premium"}
+                    <FaCrown
+                  style={{
+                    color: "#ebc634",
+                    fontSize: "1.2rem",
+                    marginRight: "2px",
+                  }}
+                />
                 </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: { xs: 2, sm: 3 },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 0.5,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#B0B0B0",
+                        fontSize: { xs: "0.9rem", sm: "1rem" },
+                        fontFamily: "'Roboto', sans-serif",
+                      }}
+                    >
+                      Start Date: {subscription.start_date || "N/A"}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#B0B0B0",
+                        fontSize: { xs: "0.9rem", sm: "1rem" },
+                        fontFamily: "'Roboto', sans-serif",
+                      }}
+                    >
+                      End Date: {subscription.end_date || "N/A"}
+                    </Typography>
+                  </Box>
+                  {daysLeft !== null && (
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: { xs: 60, sm: 80 },
+                        height: { xs: 60, sm: 80 },
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <CircularProgress
+                        variant="determinate"
+                        value={100}
+                        size={80}
+                        thickness={4}
+                        sx={{
+                          color: "#26A69A",
+                          position: "absolute",
+                          "& .MuiCircularProgress-circle": {
+                            strokeLinecap: "round",
+                          },
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#E0E0E0",
+                          fontSize: { xs: "0.9rem", sm: "1rem" },
+                          fontFamily: "'Poppins', sans-serif",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        {daysLeft} <br />
+                        {daysLeft === 1 ? "Day" : "Days"}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Box>
             ) : (
               <Box sx={{ mb: 2 }}>
@@ -311,7 +431,6 @@ const UserDashboard = () => {
                     px: { xs: 3, sm: 4 },
                     py: 1.2,
                     borderRadius: 2,
-                    // minWidth: { xs: "120px", sm: "160px" },
                     fontSize: { xs: "0.9rem", sm: "1rem" },
                     fontFamily: "'Poppins', sans-serif",
                     boxShadow: "0 4px 12px rgba(239, 83, 80, 0.4)",
@@ -334,7 +453,6 @@ const UserDashboard = () => {
                     px: { xs: 3, sm: 4 },
                     py: 1.2,
                     borderRadius: 2,
-                    // minWidth: { xs: "120px", sm: "160px" },
                     fontSize: { xs: "0.9rem", sm: "1rem" },
                     fontFamily: "'Poppins', sans-serif",
                     boxShadow: "0 4px 12px rgba(38, 166, 154, 0.4)",

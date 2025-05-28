@@ -362,3 +362,30 @@ export const togglenotification = async (status: boolean) => {
   );
   return response.data;
 }
+
+export const getSubscriptionStatuss = async (): Promise<SubscriptionStatus> => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response: AxiosResponse<SubscriptionStatus | ApiError> = await axios.get(
+      `${API_URL}/user_subscriptions`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (isApiError(response.data)) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data as SubscriptionStatus;
+  } catch (error) {
+    console.error('Subscription Status Error:', error);
+    throw error;
+  }
+}
