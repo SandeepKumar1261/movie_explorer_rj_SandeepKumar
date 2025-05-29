@@ -224,7 +224,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
         >
           <CardMedia
             component="img"
-            image={currentMovie.banner_url}
+            image={currentMovie.poster_url}
             alt={currentMovie.title}
             sx={{ width: "100%", height: "100%", objectFit: "cover" }}
           />

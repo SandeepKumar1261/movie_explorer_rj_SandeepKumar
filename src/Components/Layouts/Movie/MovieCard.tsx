@@ -103,7 +103,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         <Box sx={{ position: "relative", height:{xs:"75%" ,sm:"70%",md:"65%" }}}>
           <CardMedia
             component="img"
-            image={movie.banner_url || movie.poster_url}
+            image={movie.poster_url || movie.banner_url}
             alt={movie.title}
             sx={{ height: "100%", objectFit: {xs:"fit",sm:"cover"} }}
           />
