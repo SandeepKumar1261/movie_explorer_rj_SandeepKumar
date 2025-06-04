@@ -10,6 +10,8 @@ import {
   Grid,
   useMediaQuery,
   useTheme,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
@@ -34,6 +36,7 @@ const AdminPanel: React.FC = () => {
     director: "",
     description: "",
     duration: "",
+    premium: false, // Added premium field
   });
 
   const [preview, setPreview] = useState<{
@@ -57,13 +60,14 @@ const AdminPanel: React.FC = () => {
         id: movie.id,
         title: movie.title || "",
         genre: movie.genre || "",
-        rating: movie.rating || "",
+        rating: movie.rating !== undefined ? movie.rating.toString() : "",
         poster_url: movie.poster_url || "",
         banner_url: movie.banner_url || "",
         release_year: movie.release_year || new Date().getFullYear(),
         director: movie.director || "",
         description: movie.description || "",
-        duration: movie.duration || "",
+        duration: movie.duration !== undefined ? movie.duration.toString() : "",
+        premium: movie.premium || false, // Load premium status
       });
 
       setPreview({
@@ -114,8 +118,11 @@ const AdminPanel: React.FC = () => {
 
     if (!formData.duration) {
       newErrors.duration = "Duration is required";
-    } else if (formData.duration < 1) {
-      newErrors.duration = "Duration must be greater than 0 minutes";
+    } else {
+      const durationNum = Number(formData.duration);
+      if (isNaN(durationNum) || durationNum < 1) {
+        newErrors.duration = "Duration must be greater than 0 minutes";
+      }
     }
 
     setErrors(newErrors);
@@ -127,12 +134,14 @@ const AdminPanel: React.FC = () => {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "rating" || name === "release_year" || name === "duration" 
-          ? Number(value) 
+        type === "checkbox"
+          ? checked // Handle checkbox input for premium
+          : name === "rating" || name === "release_year" || name === "duration"
+          ? value
           : value,
     }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -147,7 +156,7 @@ const AdminPanel: React.FC = () => {
       setFormData((prev) => ({ ...prev, [field]: file }));
       const reader = new FileReader();
       reader.onloadend = () =>
-        setPreview((prev) => ({ ...prev, [field]: reader.result as string }));
+        setPreview((prev) => ({ ...prev,[field]: reader.result as string }));
       reader.readAsDataURL(file);
     }
   };
@@ -171,6 +180,7 @@ const AdminPanel: React.FC = () => {
       data.append("director", formData.director);
       data.append("description", formData.description);
       data.append("duration", formData.duration.toString());
+      data.append("premium", formData.premium.toString()); // Add premium field to FormData
 
       if (formData.poster_url instanceof File) {
         data.append("poster", formData.poster_url);
@@ -250,9 +260,10 @@ const AdminPanel: React.FC = () => {
           <TextField
             name="title"
             label={
-    <>
-      Title <span style={{ color: "red" ,fontSize:"1.2rem"}}>*</span>
-    </>}
+              <>
+                Title <span style={{ color: "red", fontSize: "1.2rem" }}>*</span>
+              </>
+            }
             value={formData.title}
             onChange={handleChange}
             fullWidth
@@ -317,6 +328,7 @@ const AdminPanel: React.FC = () => {
                 onChange={handleChange}
                 fullWidth
                 sx={textFieldStyle}
+                placeholder="Enter rating"
               />
               {errors.rating && (
                 <Typography color="error" variant="caption">
@@ -329,9 +341,10 @@ const AdminPanel: React.FC = () => {
               <TextField
                 name="release_year"
                 label={
-    <>
-      Release Year <span style={{ color: "red" ,fontSize:"1.2rem"}}>*</span>
-    </>}
+                  <>
+                    Release Year <span style={{ color: "red", fontSize: "1.2rem" }}>*</span>
+                  </>
+                }
                 type="number"
                 value={formData.release_year}
                 onChange={handleChange}
@@ -367,9 +380,9 @@ const AdminPanel: React.FC = () => {
             <TextField
               name="duration"
               label={
-    <>
-      Duration <span style={{ color: "red" ,fontSize:"1.2rem"}}>*</span>
-    </>
+                <>
+                  Duration <span style={{ color: "red", fontSize: "1.2rem" }}>*</span>
+                </>
               }
               type="number"
               value={formData.duration}
@@ -377,12 +390,28 @@ const AdminPanel: React.FC = () => {
               fullWidth
               sx={textFieldStyle}
               inputProps={{ min: 1 }}
+              placeholder="Enter duration in minutes"
             />
             {errors.duration && (
               <Typography color="error" variant="caption">
                 {errors.duration}
               </Typography>
             )}
+          </Box>
+
+          {/* Added Premium Movie Checkbox */}
+          <Box>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="premium"
+                  checked={formData.premium}
+                  onChange={handleChange}
+                  sx={{ color: "white", "&.Mui-checked": { color: "red" } }}
+                />
+              }
+              label={<Typography sx={{ color: "white" }}>Premium Movie</Typography>}
+            />
           </Box>
 
           <Grid container spacing={{ xs: 2, sm: 6 }}>

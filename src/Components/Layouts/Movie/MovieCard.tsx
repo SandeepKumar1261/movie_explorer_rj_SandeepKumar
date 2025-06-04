@@ -20,30 +20,34 @@ const MovieCard: React.FC<MovieCardProps> = ({
   onEditClick,
   onDeleteClick,
 }) => {
-     
   return (
     <Box
       onClick={() => onCardClick(movie.id, movie.premium)}
       sx={{
         position: "relative",
-        width: { xs: "100%", sm: "45%", md: "30%", lg: "18%" },
-        height: { xs: "90vh",sm:"50vh", md: "60vh" },
-        bgcolor: "#2b2b2b",
+        width: { xs: "100%", sm: "45%", md: "35%", lg: "18%" },
+        height: { xs: "85vh", sm: "50vh", md: "55vh" },
+        bgcolor: "black", // main container black
         color: "#fff",
         cursor: "pointer",
         overflow: "hidden",
-        border: "none",
+        boxShadow: "0px 4px 15px  rgba(255, 255, 255, 0.2)",
+        // border: "1px solid gray",
         transition: "transform 0.2s",
         "&:hover": { transform: "scale(1.02)" },
+        "&:hover .movie-overlay": {
+          opacity: 1,
+          pointerEvents: "auto",
+        },
       }}
     >
-      {movie.premium  && (
+      {movie.premium && (
         <Box
           sx={{
             position: "absolute",
             top: 8,
             left: 8,
-            zIndex: 1,
+            zIndex: 2,
             backgroundColor: "rgba(0, 0, 0, 0.6)",
             borderRadius: "50%",
             padding: "1px",
@@ -62,7 +66,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
               position: "absolute",
               top: 8,
               right: 8,
-              zIndex: 1,
+              zIndex: 2,
               backgroundColor: "rgba(0, 0, 0, 0.8)",
             }}
             onClick={(e) => {
@@ -79,7 +83,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
               position: "absolute",
               top: 8,
               right: 45,
-              zIndex: 1,
+              zIndex: 2,
               backgroundColor: "rgba(0, 0, 0, 0.8)",
             }}
             onClick={(e) => {
@@ -98,59 +102,81 @@ const MovieCard: React.FC<MovieCardProps> = ({
           height: "100%",
           display: "flex",
           flexDirection: "column",
+          bgcolor: "black", // card background black
         }}
       >
-        <Box sx={{ position: "relative", height:{xs:"75%" ,sm:"70%",md:"65%" }}}>
+        {/* Image and Hover Overlay */}
+        <Box sx={{ position: "relative", height: "80%" }}>
           <CardMedia
             component="img"
             image={movie.poster_url || movie.banner_url}
             alt={movie.title}
-            sx={{ height: "100%", objectFit: {xs:"fit",sm:"cover"} }}
+            sx={{ height: "100%", objectFit: "cover" }}
           />
+          {/* Hover overlay */}
           <Box
+            className="movie-overlay"
             sx={{
               position: "absolute",
-              bottom: 8,
-              left: 8,
-              zIndex: 1,
-              bgcolor: "rgba(0,0,0,0.6)",
-              borderRadius: 1,
-              p: 0.5,
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0, 0, 0, 0.7)", // slightly transparent black
+              opacity: 0,
+              pointerEvents: "none",
+              transition: "opacity 0.3s",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              p: 2,
+            }}
+          >
+             <Typography variant="body2" sx={{ color: "white", mb: 0.5 }}>
+              Year: {movie.release_year}
+            </Typography>
+            <Typography variant="body2" sx={{ color: "white", mb: 0.5 }}>
+              Duration: {movie.duration} min
+            </Typography>
+            <Typography variant="body2" sx={{ color: "white", mb: 0.5 }}>
+              Director: {movie.director}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Title and Rating Always Visible */}
+        <CardContent sx={{ p: 0.5, bgcolor: "black" }}>
+          <Typography
+            variant="subtitle1"
+            fontWeight="bold"
+            sx={{
+              color: "white",
+              wordBreak: "break-word",
+              mt:1,
+              lineHeight: 0.5,
+            }}
+          >
+            {movie.title}
+          </Typography>
+
+          <Box
+            sx={{
               display: "flex",
               alignItems: "center",
+              mt: 1,
+              bgcolor: "black", // rating box black
+              borderRadius: 1,
+              px: 1,
+              py: 0.5,
+              width: "fit-content",
             }}
           >
             <Typography variant="body2" sx={{ color: "#fff" }}>
               {movie.rating}/10
             </Typography>
-            <StarIcon
-              sx={{ color: "yellow", fontSize: 18, ml: 0.5 }}
-            />
+            <StarIcon sx={{ color: "yellow", fontSize: 18, ml: 0.5 }} />
           </Box>
-        </Box>
-        <CardContent
-          sx={{
-            color: "white",
-            backgroundColor: "black",
-            // height: "40%",
-            height:{xs:"40%" ,sm:"40%",md:"45%" },
-            py: 0.4,
-            px: 1,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            // justifyContent: "space-between",
-          }}
-        >
-          <Typography variant="subtitle1" noWrap fontWeight="bold">
-            {movie.title}
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 0.1 }}>
-            Year: {movie.release_year}
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 0.1 }}>
-            Director: {movie.director}
-          </Typography>
         </CardContent>
       </Card>
     </Box>

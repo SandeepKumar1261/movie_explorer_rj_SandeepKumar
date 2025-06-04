@@ -86,7 +86,6 @@ const UserDashboard = () => {
     fetchData();
   }, [navigate]);
 
-  // Calculate days left for subscription in real-time
   useEffect(() => {
     if (subscription?.end_date) {
       const calculateDaysLeft = () => {
@@ -147,13 +146,13 @@ const UserDashboard = () => {
         backgroundColor: "black",
         color: "#E0E0E0",
         px: { xs: 3, sm: 5, md: 8, lg: 10 },
-        py: { xs: 1, sm: 1, md: 2 },
+        py: { xs: 2, sm: 3, md: 4 },
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
       }}
     >
-      <Box display="flex" alignItems="center" mb={{ xs: 1, sm: 1 }}>
+      <Box display="flex" alignItems="center" mb={{ xs: 2, sm: 3 }}>
         <IconButton
           onClick={() => navigate("/")}
           sx={{ color: "#E0E0E0", mr: 1 }}
@@ -162,156 +161,206 @@ const UserDashboard = () => {
         </IconButton>
 
         <Typography
-          variant="body2"
+          variant="h5"
           sx={{
             color: "#E0E0E0",
             fontFamily: "'Poppins', sans-serif",
             textAlign: "left",
-            fontSize: { xs: "1rem", sm: "1.3rem", md: "1.6rem" },
+            fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.8rem" },
+            fontWeight: 600,
           }}
         >
           User Dashboard
         </Typography>
       </Box>
-      <Paper
+      <Box
         sx={{
-          p: { xs: 1, sm: 1, md: 2 },
-          backgroundColor: "black",
-          borderRadius: 3,
-          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 3, sm: 4 },
           width: "100%",
           maxWidth: { xs: "100%", sm: 900, md: 1100 },
-          transition: "transform 0.4s ease, box-shadow 0.4s ease",
-          "&:hover": {
-            transform: "translateY(-6px)",
-            boxShadow: "0 15px 40px rgba(0, 0, 0, 0.6)",
-          },
         }}
       >
-        <Box
+        <Paper
           sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            alignItems: { xs: "center", sm: "center" },
-            gap: { xs: 3, sm: 4 },
+            p: { xs: 2, sm: 3, md: 4 },
+            backgroundColor: "black",
+            borderRadius: 3,
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+            width: { xs: "100%", sm: "50%" },
+            transition: "transform 0.4s ease, box-shadow 0.4s ease",
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: "0 15px 40px rgba(0, 0, 0, 0.6)",
+            },
           }}
         >
           <Box
             sx={{
               display: "flex",
-              justifyContent: { xs: "center", sm: "flex-start" },
-              flex: { xs: "none", sm: "0 0 auto" },
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "center", sm: "center" },
+              gap: { xs: 3, sm: 4 },
             }}
           >
-            <Avatar
-              src={userData?.profile_picture_url || ""}
-              alt={userData?.name || "User"}
+            <Box
               sx={{
-                width: { xs: 150, sm: 210, md: 260 },
-                height: { xs: 150, sm: 210, md: 260 },
-                border: "5px solid #26A69A",
-                boxShadow: "0 6px 15px rgba(0, 0, 0, 0.3)",
-                transition: "transform 0.4s ease, border-color 0.4s ease",
-                "&:hover": {
-                  transform: "scale(1.08)",
-                  borderColor: "#80CBC4",
-                },
+                display: "flex",
+                justifyContent: { xs: "center", sm: "flex-start" },
+                flex: { xs: "none", sm: "0 0 auto" },
               }}
-            />
+            >
+              <Avatar
+                src={userData?.profile_picture_url || ""}
+                alt={userData?.name || "User"}
+                sx={{
+                  width: { xs: 120, sm: 180, md: 220 },
+                  height: { xs: 120, sm: 180, md: 220 },
+                  border: "4px solid #26A69A",
+                  boxShadow: "0 6px 15px rgba(0, 0, 0, 0.3)",
+                  transition: "transform 0.4s ease, border-color 0.4s ease",
+                  "&:hover": {
+                    transform: "scale(1.08)",
+                    borderColor: "#80CBC4",
+                  },
+                }}
+              />
+            </Box>
+            <Box
+              sx={{
+                flex: { xs: "none", sm: 1 },
+                textAlign: { xs: "center", sm: "left" },
+                display: "flex",
+                flexDirection: "column",
+                gap: 1.5,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  color: "#E0E0E0",
+                  fontFamily: "'Poppins', sans-serif",
+                  fontSize: { xs: "1.1rem", sm: "1.3rem" },
+                  fontWeight: 600,
+                }}
+              >
+                Welcome, {userData?.name || "User"}!
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: userData?.role?.toLowerCase() === "supervisor" ? "#26A69A" : "#B0B0B0",
+                  fontSize: { xs: "0.9rem", sm: "1rem" },
+                  fontFamily: "'Roboto', sans-serif",
+                  fontWeight: userData?.role?.toLowerCase() === "supervisor" ? 600 : 400,
+                  backgroundColor: userData?.role?.toLowerCase() === "supervisor" ? "rgba(38, 166, 154, 0.1)" : "transparent",
+                  borderRadius: userData?.role?.toLowerCase() === "supervisor" ? 2 : 0,
+                  px: userData?.role?.toLowerCase() === "supervisor" ? 0.5 : 0,
+                  py: userData?.role?.toLowerCase() === "supervisor" ? 0.5 : 0,
+                }}
+              >
+                Role: {userData?.role || "N/A"}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#90A4AE",
+                  fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                  fontFamily: "'Roboto', sans-serif",
+                }}
+              >
+                Manage your account, explore features, and stay in control.
+              </Typography>
+            </Box>
           </Box>
+        </Paper>
+        <Paper
+          sx={{
+            p: { xs: 2, sm: 3, md: 4 },
+            backgroundColor: "black",
+            borderRadius: 3,
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+            width: { xs: "100%", sm: "50%" },
+            transition: "transform 0.4s ease, box-shadow 0.4s ease",
+            "&:hover": {
+              transform: "translateY(-6px)",
+              boxShadow: "0 15px 40px rgba(0, 0, 0, 0.6)",
+            },
+          }}
+        >
           <Box
             sx={{
-              flex: { xs: "none", sm: 1 },
               textAlign: { xs: "center", sm: "left" },
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
             }}
           >
             <Typography
-              variant="body2"
+              variant="h6"
               sx={{
-                mb: 1,
                 color: "#E0E0E0",
-                fontFamily: "'Roboto', sans-serif",
-                fontSize: { xs: "1rem", sm: "1.2rem" },
-              }}
-            >
-              Welcome, {userData?.name || "User"}!
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: "#B0B0B0",
-                mb: 1,
-                fontSize: { xs: "1rem", sm: "1.1rem" },
-                fontFamily: "'Roboto', sans-serif",
-              }}
-            >
-              Role: {userData?.role || "N/A"}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: "#90A4AE",
-                mb: 1,
-                fontSize: { xs: "0.9rem", sm: "1rem" },
-                fontFamily: "'Roboto', sans-serif",
-              }}
-            >
-              Manage your account, explore features, and stay in control.
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                mb: 1.5,
-                color: "#E0E0E0",
-                fontSize: { xs: "1.4rem", sm: "1.6rem" },
+                fontSize: { xs: "1.3rem", sm: "1.5rem" },
                 fontFamily: "'Poppins', sans-serif",
+                fontWeight: 600,
               }}
             >
               Subscription
             </Typography>
             {subscription ? (
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: "#B0B0B0",
-                    mb: 1,
-                    fontSize: { xs: "1rem", sm: "1.1rem" },
-                    fontFamily: "'Roboto', sans-serif",
-                  }}
-                >
-                  {subscription.plan_type === "1-day"
-                    ? "Basic"
-                    : subscription.plan_type === "1-month"
-                    ? "Standard"
-                    : "Premium"}
-                    <FaCrown
-                  style={{
-                    color: "#ebc634",
-                    fontSize: "1.2rem",
-                    marginRight: "2px",
-                  }}
-                />
-                </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <Box
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: { xs: 2, sm: 3 },
+                    gap: { xs: 1, sm: 2 },
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "#B0B0B0",
+                      fontSize: { xs: "0.9rem", sm: "1rem" },
+                      fontFamily: "'Roboto', sans-serif",
+                    }}
+                  >
+                    {subscription.plan_type === "1-day"
+                      ? "Basic"
+                      : subscription.plan_type === "1-month"
+                      ? "Standard"
+                      : "Premium"}
+                  </Typography>
+                  <FaCrown
+                    style={{
+                      color: "#ebc634",
+                      fontSize: "1.2rem",
+                    }}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "row", sm: "row" },
+                    alignItems: { xs: "center", sm: "center" },
+                    justifyContent: { xs: "flex-start", sm: "flex-start" }, // Align to the left
+                    gap: { xs: 1, sm: 2 }, // Reduced gap to bring circular progress closer
+                    width: "100%",
                   }}
                 >
                   <Box
                     sx={{
                       display: "flex",
                       flexDirection: "column",
-                      gap: 0.5,
+                      alignItems: { xs: "flex-start", sm: "flex-start" },
+                      gap: 2,
                     }}
                   >
                     <Typography
                       variant="body2"
                       sx={{
                         color: "#B0B0B0",
-                        fontSize: { xs: "0.9rem", sm: "1rem" },
+                        fontSize: { xs: "0.8rem", sm: "0.9rem" },
                         fontFamily: "'Roboto', sans-serif",
                       }}
                     >
@@ -321,7 +370,7 @@ const UserDashboard = () => {
                       variant="body2"
                       sx={{
                         color: "#B0B0B0",
-                        fontSize: { xs: "0.9rem", sm: "1rem" },
+                        fontSize: { xs: "0.8rem", sm: "0.9rem" },
                         fontFamily: "'Roboto', sans-serif",
                       }}
                     >
@@ -332,17 +381,18 @@ const UserDashboard = () => {
                     <Box
                       sx={{
                         position: "relative",
-                        width: { xs: 60, sm: 80 },
-                        height: { xs: 60, sm: 80 },
+                        width: { xs: 80, sm: 100 },
+                        height: { xs: 80, sm: 100 },
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
+                        marginLeft: { xs: 1, sm: 2 }, // Fine-tune the left margin
                       }}
                     >
                       <CircularProgress
                         variant="determinate"
-                        value={100}
-                        size={80}
+                        value={(daysLeft / 30) * 100}
+                        size={100}
                         thickness={4}
                         sx={{
                           color: "#26A69A",
@@ -352,31 +402,48 @@ const UserDashboard = () => {
                           },
                         }}
                       />
-                      <Typography
-                        variant="body2"
+                      <Box
                         sx={{
-                          color: "#E0E0E0",
-                          fontSize: { xs: "0.9rem", sm: "1rem" },
-                          fontFamily: "'Poppins', sans-serif",
-                          fontWeight: 600,
-                          textAlign: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        {daysLeft} <br />
-                        {daysLeft === 1 ? "Day" : "Days"}
-                      </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            color: "#E0E0E0",
+                            fontSize: { xs: "1.2rem", sm: "1.4rem" },
+                            fontFamily: "'Poppins', sans-serif",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {daysLeft}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "#E0E0E0",
+                            fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                            fontFamily: "'Poppins', sans-serif",
+                            fontWeight: 400,
+                          }}
+                        >
+                          {daysLeft === 1 ? "Day" : "Days"} Left
+                        </Typography>
+                      </Box>
                     </Box>
                   )}
                 </Box>
               </Box>
             ) : (
-              <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <Typography
                   variant="body2"
                   sx={{
                     color: "#90A4AE",
-                    mb: 1.5,
-                    fontSize: { xs: "0.9rem", sm: "1rem" },
+                    fontSize: { xs: "0.8rem", sm: "0.9rem" },
                     fontFamily: "'Roboto', sans-serif",
                   }}
                 >
@@ -406,7 +473,8 @@ const UserDashboard = () => {
                       boxShadow: "0 6px 18px rgba(38, 166, 154, 0.6)",
                     },
                   }}
-                >
+                
+               >
                   Subscribe
                 </Button>
               </Box>
@@ -418,6 +486,7 @@ const UserDashboard = () => {
                 gap: { xs: 2, sm: 2.5 },
                 justifyContent: { xs: "center", sm: "flex-start" },
                 alignItems: "center",
+                mt: 2,
               }}
             >
               {subscription && (
@@ -467,8 +536,8 @@ const UserDashboard = () => {
               )}
             </Box>
           </Box>
-        </Box>
-      </Paper>
+        </Paper>
+      </Box>
 
       <Dialog
         open={openDialog}

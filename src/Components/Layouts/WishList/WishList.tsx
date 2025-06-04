@@ -69,7 +69,7 @@ const WishlistPage: React.FC = () => {
 
     try {
       const response = await toggleWishList(movieId, token);
-      toast.success("Movie removed form WishList");
+      toast.success("Movie removed from WishList");
       setMovies(movies.filter((currMovie) => currMovie.id !== movieId));
       console.log("Wishlist toggled:", response);
     } catch (error) {
@@ -152,22 +152,26 @@ const WishlistPage: React.FC = () => {
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {movies.map((movie) => (
-                <Card
+                <Box
                   key={movie.id}
                   sx={{
                     display: "flex",
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                    bgcolor: "#000000",
-                    border: "1px solid #333",
+                    flexDirection: "row",
+                      boxShadow: " 4px 6px 16px rgba(255, 255, 255, 0.3)",
+
+                    gap: 2,
+                    alignItems: "center",
                   }}
                 >
-                  <Box
+                  {/* Image Card */}
+                  <Card
                     sx={{
                       width: "35%",
-                      height: "150px",
-                      position: "relative",
+                      height: "200px",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      bgcolor: "#000000",
+                      // border: "1px solid #333",
                     }}
                   >
                     <Box
@@ -175,22 +179,28 @@ const WishlistPage: React.FC = () => {
                       src={movie.poster_url}
                       alt={movie.title}
                       sx={{
-                        margin: "auto",
                         width: "100%",
                         height: "100%",
                         objectFit: "cover",
-                        borderRadius: "12px 0 0 12px",
+                        borderRadius: "12px",
                       }}
                     />
-                  </Box>
+                  </Card>
 
-                  <Box
+                  {/* Details Card */}
+                  <Card
                     sx={{
                       width: "65%",
-                      p: 2,
+                      height: "200px",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      // boxShadow: "0 4px 12px rgba(255, 255, 255, 0.3)",
+                      bgcolor: "#000000",
+                      // border: "1px solid #333",
+                      p: 0,
                       display: "flex",
                       flexDirection: "column",
-                      justifyContent: "space-between",
+                      // justifyContent: "space-between",
                       position: "relative",
                     }}
                   >
@@ -200,7 +210,8 @@ const WishlistPage: React.FC = () => {
                         color: "#6a8cff",
                         fontWeight: "bold",
                         letterSpacing: 1,
-                        fontSize: "0.7rem",
+                        fontSize: "1.1rem",
+                        mt:1
                       }}
                     >
                       {movie.genre.toUpperCase()}
@@ -211,8 +222,8 @@ const WishlistPage: React.FC = () => {
                       sx={{
                         fontWeight: "bold",
                         fontSize: "0.95rem",
-                        lineHeight: 1.2,
-                        mt: 0.5,
+                        lineHeight: 1.1,
+                        mt: 0.7,
                         color: "white",
                       }}
                     >
@@ -220,7 +231,7 @@ const WishlistPage: React.FC = () => {
                     </Typography>
 
                     <Box
-                      sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
+                      sx={{ display: "flex", alignItems: "center", mt: 0.7 }}
                     >
                       <Typography
                         variant="caption"
@@ -238,7 +249,7 @@ const WishlistPage: React.FC = () => {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        mt: 1,
+                        mt: 0.5,
                       }}
                     >
                       <Typography
@@ -277,17 +288,16 @@ const WishlistPage: React.FC = () => {
                         position: "absolute",
                         top: 8,
                         right: 8,
-                        color: "#888",
+                        color: "red",
                         p: 0.5,
                       }}
-                      
                       aria-label="delete"
                       onClick={() => handleDeleteClick(movie.id)}
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
-                  </Box>
-                </Card>
+                  </Card>
+                </Box>
               ))}
             </Box>
           )}
