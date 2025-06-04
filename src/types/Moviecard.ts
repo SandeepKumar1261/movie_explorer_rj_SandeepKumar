@@ -8,6 +8,8 @@ export interface Movie {
   release_year: number;
   director: string;
   premium: boolean;
+  duration:number,
+  genre:string
 }
 
 

@@ -43,13 +43,12 @@ const Movies: React.FC<MoviesProps> = ({ onMovieDelete }) => {
     setUserRole(user.user?.role || "");
   }, []);
 
-  // Initialize currentPage from URL query parameter on mount
   useEffect(() => {
     const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
     if (pageFromUrl >= 1) {
       setCurrentPage(pageFromUrl);
     }
-  }, []); // Empty dependency array to run only on mount
+  }, []);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -83,15 +82,14 @@ const Movies: React.FC<MoviesProps> = ({ onMovieDelete }) => {
     };
     fetchMovies();
 
-    // Update URL with current page
     setSearchParams({ page: currentPage.toString() });
   }, [currentPage, selectedGenre, searchTerm, rating, setSearchParams]);
 
   const handleCardClick = (movieId: number, premium: boolean) => {
-     const isSupervisor = JSON.parse(localStorage.getItem("user") || "{}").user?.role;
+    const isSupervisor = JSON.parse(localStorage.getItem("user") || "{}").user?.role;
     const planType = localStorage.getItem("plan");
     if (premium || !isSupervisor) {
-      if (!planType ) {
+      if (!planType) {
         toast.info("This is a premium movie. Please upgrade your plan.");
         navigate(`/subscription`);
         return;

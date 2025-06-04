@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
   CardMedia,
+  Typography,
   Box,
   IconButton,
-  Typography,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Movie, MovieCardProps } from "../../../types/Moviecard";
+import { MovieCardProps } from "../../../types/Moviecard";
 
 const MovieCard: React.FC<MovieCardProps> = ({
   movie,
@@ -21,22 +21,9 @@ const MovieCard: React.FC<MovieCardProps> = ({
   onEditClick,
   onDeleteClick,
 }) => {
-  const [isOverlayVisible, setIsOverlayVisible] = useState(false);
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    if (isXsScreen) {
-      // On mobile, toggle overlay instead of navigating
-      setIsOverlayVisible(!isOverlayVisible);
-      e.stopPropagation();
-    } else {
-      // On desktop, trigger navigation
-      onCardClick(movie.id, movie.premium);
-    }
-  };
-
   return (
     <Card
-      onClick={handleCardClick}
+      onClick={() => onCardClick(movie.id || 0, movie.premium || false)}
       sx={{
         width: cardWidth,
         bgcolor: "#2b2b2b",
@@ -47,7 +34,10 @@ const MovieCard: React.FC<MovieCardProps> = ({
         cursor: "pointer",
         position: "relative",
         "&:hover .hover-overlay": {
-          opacity: isXsScreen ? 0 : 1, // Disable hover on mobile
+          opacity: 1,
+        },
+        "&:active .hover-overlay": {
+          opacity: 1,
         },
       }}
     >
@@ -57,7 +47,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
             position: "absolute",
             top: 10,
             right: 10,
-            zIndex: 2,
+            zIndex: 3,
             display: "flex",
             gap: 1,
           }}
@@ -83,10 +73,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
           </IconButton>
           <IconButton
             size="small"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              onDeleteClick(e, movie.id);
-            }}
+            onClick={(e: React.MouseEvent) => onDeleteClick(e, movie.id || 0)}
             sx={{
               bgcolor: "rgba(0,0,0,0.7)",
               color: "red",
@@ -105,7 +92,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
             position: "absolute",
             top: 10,
             left: 10,
-            zIndex: 1,
+            zIndex: 2,
             bgcolor: "rgba(0,0,0,0.6)",
             borderRadius: "50%",
             p: 0.8,
@@ -126,36 +113,16 @@ const MovieCard: React.FC<MovieCardProps> = ({
       <Box sx={{ position: "relative" }}>
         <CardMedia
           component="img"
-          height={isXsScreen ? 240 : 300}
+          height={isXsScreen ? 300 : 400}
           image={
             movie.poster_url ||
             "https://via.placeholder.com/300x450?text=No+Image"
           }
           alt={movie.title || "Movie poster"}
-          sx={{ height: isXsScreen ? 240 : 300, objectFit: "cover" }}
+          sx={{ height: isXsScreen ? 200 : 300, objectFit: "cover" }}
         />
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 10,
-            left: 10,
-            zIndex: 1,
-            bgcolor: "rgba(0,0,0,0.6)",
-            borderRadius: 1,
-            p: 0.5,
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="body2" sx={{ color: "#fff" }}>
-            {movie.rating}/10
-          </Typography>
-          <StarIcon
-            sx={{ color: "#FFD700", fontSize: isXsScreen ? 16 : 18, ml: 0.5 }}
-          />
-        </Box>
 
-        {/* Overlay for both hover (desktop) and tap (mobile) */}
+        {/* Hover Overlay */}
         <Box
           className="hover-overlay"
           sx={{
@@ -164,47 +131,63 @@ const MovieCard: React.FC<MovieCardProps> = ({
             left: 0,
             width: "100%",
             height: "100%",
-            bgcolor: "rgba(0,0,0,0.8)",
-            opacity: (isOverlayVisible ? 1 : 0),
-
-            // opacity: isXsScreen ? (isOverlayVisible ? 1 : 0) : 0,
+            bgcolor: "rgba(0, 0, 0, 0.5)",
+            opacity: 0,
             transition: "opacity 0.3s ease",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            p: isXsScreen ? 1 : 2,
+            p: 2,
             zIndex: 1,
-            overflow: "auto",
-            "&::-webkit-scrollbar": {
-              display: "none",
-            },
-            msOverflowStyle: "none",
-            scrollbarWidth: "none",
           }}
         >
           <Typography
-            variant={isXsScreen ? "subtitle2" : "subtitle1"}
-            sx={{ fontWeight: "bold", mb: isXsScreen ? 0.5 : 1, textAlign: "center" }}
+            variant="subtitle1"
+            sx={{ fontWeight: "bold", mb: 1, textAlign: "center" }}
           >
-            {movie.title}
+            {movie.title || "Unknown Title"}
           </Typography>
-          <Typography variant="body2" sx={{ mb: isXsScreen ? 0.3 : 0.5 }}>
-            Released Year: {movie.release_year}
+          
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            Released: {movie.release_year || "N/A"}
           </Typography>
-          <Typography variant="body2" sx={{ mb: isXsScreen ? 0.3 : 0.5 }}>
-            Director: {movie.director}
+          <Typography variant="body2" sx={{ mb: 0.5 }}>
+            Director: {movie.director || "Unknown"}
           </Typography>
-          <Typography variant="body2" sx={{ mb: isXsScreen ? 0.3 : 0.5 }}>
-            Duration: {movie.duration || "N/A"}
+          {movie.genre && (
+            <Typography variant="body2" sx={{ mb: 0.5 }}>
+              Genre: {movie.genre}
+            </Typography>
+          )}
+          {movie.duration && (
+            <Typography variant="body2" sx={{ mb: 0.5 }}>
+              Runtime: {movie.duration} min
+            </Typography>
+          )}
+         
+        </Box>
+
+        {/* Bottom Rating Tag */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 10,
+            left: 10,
+            zIndex: 2,
+            bgcolor: "rgba(0,0,0,0.6)",
+            borderRadius: 1,
+            p: 0.5,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="body2" sx={{ color: "#fff" }}>
+            {movie.rating ? `${movie.rating}/10` : "N/A"}
           </Typography>
-          <Typography variant="body2" sx={{ mb: isXsScreen ? 0.3 : 0.5 }}>
-            Genre: {movie.genre || "N/A"}
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography variant="body2">{movie.rating}/10</Typography>
-            <StarIcon sx={{ color: "#FFD700", fontSize: isXsScreen ? 14 : 16, ml: 0.5 }} />
-          </Box>
+          <StarIcon
+            sx={{ color: "#FFD700", fontSize: isXsScreen ? 16 : 18, ml: 0.5 }}
+          />
         </Box>
       </Box>
     </Card>

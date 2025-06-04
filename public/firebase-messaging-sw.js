@@ -3,19 +3,18 @@ importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-com
 
 const firebaseConfig = {
 
-  apiKey: import.meta.env.VITE_APIKEY,
+  apiKey: "AIzaSyAj2_tR8FBm5C7OvXfkZdoIstbpX4i-WM0",
 
-  authDomain: import.meta.env.VITE_AUTHDOMAIN,
+  authDomain: "movieexplorer-b12a3.firebaseapp.com",
 
-  projectId: import.meta.env.VITE_PROJECTID,
+  projectId: "movieexplorer-b12a3",
 
-  storageBucket: import.meta.env.VITE_STORAGEBUCKET,
+  storageBucket: "movieexplorer-b12a3.firebasestorage.app",
+  messagingSenderId: "52465435359",
 
-  messagingSenderId: import.meta.env.VITE_MESSAGINGSENDERID,
+  appId: "1:52465435359:web:810c97d486ad936d9c1f6a",
 
-  appId: import.meta.env.VITE_APPID,
-
-  measurementId: import.meta.env.VITE_MEASUREID,
+  measurementId:"G-BFWWK5XDNK",
 
 };
  

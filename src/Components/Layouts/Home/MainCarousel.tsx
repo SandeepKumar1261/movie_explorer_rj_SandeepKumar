@@ -106,7 +106,7 @@ const MainCarousel: React.FC<MainCarouselProps> = ({ movies }) => {
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
-          opacity: 6,
+          opacity: 1,
           zIndex: 1,
           "&::after": {
             content: '""',

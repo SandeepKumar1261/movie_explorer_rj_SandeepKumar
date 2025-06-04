@@ -9,6 +9,7 @@ export interface Movie {
   director: string;
   description: string;
   duration: number | string;
+  premium:boolean
 }
 
 export const genres: string[] = [

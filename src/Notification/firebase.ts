@@ -24,6 +24,7 @@ export const messaging = getMessaging(app);
 
 export const generateToken = async () => {
   try {
+    console.log("in the note")
     if (Notification.permission === "granted") {
       const vapidKey = "BMXYxiMBDYawK_hfhlHkcRoGluVTWB6Q-qLYwoNFDtZSDJ3BbXV6XfL8enuYfSmLR_i0h7dfAZTdbVsju3YgxjM";
       const token = await getToken(messaging, { vapidKey }).catch(async (error) => {
@@ -56,7 +57,7 @@ export const generateToken = async () => {
     if (!token || typeof token !== "string" || token.length < 50) {
       return null;
     }
-
+    // console.log(token);
     await sendTokenToBackend(token);
     return token;
   } catch (error) {

@@ -99,14 +99,34 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({
     if (touchStart - touchEnd < -threshold) handleScrollLeft();
   };
 
-  const handleCardClick = async(movieId: number, premium: boolean) => {
-    const planType=await getSubscriptionStatus();
-    // const planType = localStorage.getItem("plan");
-    if (premium && !planType ) {
-      toast.info("This is a premium movie. Please upgrade your plan.");
-      navigate("/subscription");
-    } else {
-      navigate(`/movie/${movieId}`);
+  const handleCardClick = async (movieId: number, premium: boolean) => {
+    if (!movieId) {
+      console.error("Invalid movie ID:", movieId);
+      toast.error("Invalid movie selection.");
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const isLoggedIn = !!user?.user; // Check if user is logged in
+
+    if (!isLoggedIn) {
+      toast.info("Please log in first to view movie details.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const planType = await getSubscriptionStatus();
+      console.log("Subscription plan:", planType);
+      if (premium && !planType) {
+        toast.info("This is a premium movie. Please upgrade your plan.");
+        navigate("/subscription");
+      } else {
+        navigate(`/movie/${movieId}`);
+      }
+    } catch (error) {
+      console.error("Error checking subscription status:", error);
+      toast.error("Unable to verify subscription. Please try again.");
     }
   };
 
@@ -122,9 +142,10 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({
         if (onMovieDelete) {
           onMovieDelete(movieId);
         }
+        toast.success("Movie deleted successfully.");
       } catch (error) {
         console.error("Failed to delete movie:", error);
-        alert("Failed to delete the movie. Please try again.");
+        toast.error("Failed to delete the movie. Please try again.");
       }
     }
   };
@@ -158,7 +179,7 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({
             fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" },
           }}
         >
-          {genre}
+          {genre || "Unknown Genre"}
         </Typography>
         <Typography
           variant="body2"
@@ -175,13 +196,13 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({
         </Typography>
       </Box>
 
-      {movies.length === 0 ? (
+      {!movies || movies.length === 0 ? (
         <Typography
           color="white"
           align="center"
           sx={{ py: { xs: 3, md: 6 }, px: 2 }}
         >
-          No movies found for {genre}.
+          No movies found for {genre || "this genre"}.
         </Typography>
       ) : (
         <Box sx={{ position: "relative" }}>
@@ -227,7 +248,7 @@ const HomeCarousel: React.FC<HomeCarouselProps> = ({
           >
             {movies.map((movie: Movie) => (
               <MovieCard
-                key={movie.id}
+                key={movie.id || Math.random()}
                 movie={movie}
                 isSupervisor={isSupervisor}
                 cardWidth={CARD_WIDTH}

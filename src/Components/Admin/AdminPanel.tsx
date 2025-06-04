@@ -36,7 +36,7 @@ const AdminPanel: React.FC = () => {
     director: "",
     description: "",
     duration: "",
-    premium: false, // Added premium field
+    premium: false,
   });
 
   const [preview, setPreview] = useState<{
@@ -67,7 +67,7 @@ const AdminPanel: React.FC = () => {
         director: movie.director || "",
         description: movie.description || "",
         duration: movie.duration !== undefined ? movie.duration.toString() : "",
-        premium: movie.premium || false, // Load premium status
+        premium: movie.premium || false,
       });
 
       setPreview({
@@ -139,10 +139,10 @@ const AdminPanel: React.FC = () => {
       ...prev,
       [name]:
         type === "checkbox"
-          ? checked // Handle checkbox input for premium
+          ? checked
           : name === "rating" || name === "release_year" || name === "duration"
-          ? value
-          : value,
+            ? value
+            : value,
     }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
@@ -156,7 +156,7 @@ const AdminPanel: React.FC = () => {
       setFormData((prev) => ({ ...prev, [field]: file }));
       const reader = new FileReader();
       reader.onloadend = () =>
-        setPreview((prev) => ({ ...prev,[field]: reader.result as string }));
+        setPreview((prev) => ({ ...prev, [field]: reader.result as string }));
       reader.readAsDataURL(file);
     }
   };
@@ -399,7 +399,6 @@ const AdminPanel: React.FC = () => {
             )}
           </Box>
 
-          {/* Added Premium Movie Checkbox */}
           <Box>
             <FormControlLabel
               control={

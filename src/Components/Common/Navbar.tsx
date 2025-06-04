@@ -249,34 +249,6 @@ const Navbar = () => {
             >
               Genre
             </Typography>
-            {/* <Typography
-              component={Link}
-              to="/subscription"
-              sx={{
-                textDecoration: "none",
-                color: "inherit",
-                fontWeight: "bold",
-                "&:hover": { color: "red" },
-              }}
-            >
-              Subscription
-            </Typography>  */}
-            {/* {userPlan && (
-              <FaCrown style={{ color: "yellow", fontSize: "1.2rem" }} />
-            )}
-            <Typography
-              component={Link}
-              to="/subscription"
-              sx={{
-                 color:userPlan ? "yellow" :"red",
-                textDecoration: "none",
-                // color: "inherit",
-                fontWeight: "bold",
-                "&:hover": { color: "red" },
-              }}
-            >
-              {userPlan ? "Active" : "Subscription"}
-            </Typography> */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               {userPlan && (
                 <FaCrown

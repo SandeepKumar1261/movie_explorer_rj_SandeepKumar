@@ -163,7 +163,6 @@ const WishlistPage: React.FC = () => {
                     alignItems: "center",
                   }}
                 >
-                  {/* Image Card */}
                   <Card
                     sx={{
                       width: "35%",
@@ -171,7 +170,6 @@ const WishlistPage: React.FC = () => {
                       borderRadius: "12px",
                       overflow: "hidden",
                       bgcolor: "#000000",
-                      // border: "1px solid #333",
                     }}
                   >
                     <Box
@@ -187,20 +185,16 @@ const WishlistPage: React.FC = () => {
                     />
                   </Card>
 
-                  {/* Details Card */}
                   <Card
                     sx={{
                       width: "65%",
                       height: "200px",
                       borderRadius: "12px",
                       overflow: "hidden",
-                      // boxShadow: "0 4px 12px rgba(255, 255, 255, 0.3)",
                       bgcolor: "#000000",
-                      // border: "1px solid #333",
                       p: 0,
                       display: "flex",
                       flexDirection: "column",
-                      // justifyContent: "space-between",
                       position: "relative",
                     }}
                   >

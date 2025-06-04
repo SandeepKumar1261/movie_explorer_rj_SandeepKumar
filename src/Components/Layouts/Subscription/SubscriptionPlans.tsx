@@ -18,6 +18,7 @@ import {
 import { Check } from "@mui/icons-material";
 import { createSubscription, cancelSubscription, getSubscriptionStatuss } from "../../../Utils/Api";
 import { Plan } from "../../../types/Subscription";
+import { toast } from "react-toastify";
 
 const SubscriptionPlans: React.FC = () => {
   window.scrollTo(0, 0);
@@ -70,17 +71,15 @@ const SubscriptionPlans: React.FC = () => {
     },
   ];
 
-  // Simulated check for active subscription
   useEffect(() => {
     const checkSubscriptionStatus = async () => {
       try {
-        // Replace with actual API call to check subscription status
         const response = await getSubscriptionStatuss();
         setHasActiveSubscription(response.active);
         setCurrentPlan(plans.find(plan => plan.id === localStorage.getItem("plan")) || null);
-        setHasActiveSubscription(true); // Placeholder
+        setHasActiveSubscription(true); 
         const idx = plans.findIndex(plan => plan.id === localStorage.getItem("plan"));
-        setCurrentPlan(plans[idx]); // Placeholder: assuming 30 Day Pass is active
+        setCurrentPlan(plans[idx]); 
       } catch (err) {
         console.error("Failed to check subscription status:", err);
       }
@@ -122,7 +121,7 @@ const SubscriptionPlans: React.FC = () => {
       setCurrentPlan(null);
       setSelectedPlan(null);
       localStorage.removeItem("plan");
-      // setError("Subscription cancelled successfully.");
+      toast.success("Subscription cancelled successfully");
     } catch (err: any) {
       setError(
         err.message || "Failed to cancel subscription. Please try again."

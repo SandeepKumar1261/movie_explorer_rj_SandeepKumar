@@ -26,13 +26,12 @@ const MovieCard: React.FC<MovieCardProps> = ({
       sx={{
         position: "relative",
         width: { xs: "100%", sm: "45%", md: "35%", lg: "18%" },
-        height: { xs: "85vh", sm: "50vh", md: "55vh" },
-        bgcolor: "black", // main container black
+        height: { xs: "85vh", sm: "65vh", md: "55vh" },
+        bgcolor: "black", 
         color: "#fff",
         cursor: "pointer",
         overflow: "hidden",
         boxShadow: "0px 4px 15px  rgba(255, 255, 255, 0.2)",
-        // border: "1px solid gray",
         transition: "transform 0.2s",
         "&:hover": { transform: "scale(1.02)" },
         "&:hover .movie-overlay": {
@@ -102,10 +101,9 @@ const MovieCard: React.FC<MovieCardProps> = ({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          bgcolor: "black", // card background black
+          bgcolor: "black", 
         }}
       >
-        {/* Image and Hover Overlay */}
         <Box sx={{ position: "relative", height: "80%" }}>
           <CardMedia
             component="img"
@@ -113,7 +111,6 @@ const MovieCard: React.FC<MovieCardProps> = ({
             alt={movie.title}
             sx={{ height: "100%", objectFit: "cover" }}
           />
-          {/* Hover overlay */}
           <Box
             className="movie-overlay"
             sx={{
@@ -122,7 +119,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.7)", // slightly transparent black
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
               opacity: 0,
               pointerEvents: "none",
               transition: "opacity 0.3s",
@@ -145,7 +142,6 @@ const MovieCard: React.FC<MovieCardProps> = ({
           </Box>
         </Box>
 
-        {/* Title and Rating Always Visible */}
         <CardContent sx={{ p: 0.5, bgcolor: "black" }}>
           <Typography
             variant="subtitle1"
@@ -165,7 +161,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
               display: "flex",
               alignItems: "center",
               mt: 1,
-              bgcolor: "black", // rating box black
+              bgcolor: "black", 
               borderRadius: 1,
               px: 1,
               py: 0.5,
